@@ -1,6 +1,12 @@
+import re
+
 from django import forms
 from django.contrib.auth.models import User
 from .models import Task,Stage
+from django import forms
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext_lazy as _
+
 
 class TaskForm(forms.ModelForm):
     class Meta:
@@ -33,3 +39,61 @@ class TaskForm(forms.ModelForm):
 
         return cleaned_data
 
+
+class SignupForm(forms.Form):
+    username = forms.CharField(max_length=30, label=_("Username"))
+    email = forms.EmailField(max_length=100, label=_("Email"))
+    fist_name = forms.CharField(max_length=30, label=_("First Name"))
+    last_name = forms.CharField(max_length=50, label=_("Last Name"))
+    password1 = forms.CharField(
+        max_length=255, label=_("Password"), widget=forms.PasswordInput()
+    )
+    password2 = forms.CharField(
+        max_length=255, label=_("Confirm Password"), widget=forms.PasswordInput()
+    )
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        email_pattern = re.compile(r"^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$")
+        if not re.search(email_pattern, email):
+            raise forms.ValidationError(
+                _("Email or Password invalid.")
+            )
+        try:
+            User.objects.get(username=email)
+        except ObjectDoesNotExist:
+            return email
+        raise forms.ValidationError(_("Email or Password invalid."))
+
+    def clean_password2(self):
+        if "password1" in self.cleaned_data:
+            password1 = self.cleaned_data["password1"]
+            password2 = self.cleaned_data["password2"]
+
+            if password2 == password1 and password1:
+                return password2
+        else:
+            raise forms.ValidationError(_("Password does not match"))
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        if not re.search(r"^\w+$", username):
+            raise forms.ValidationError(
+                _("Username can only contain alphanumeric characters and the underscore.")
+            )
+        try:
+            User.objects.get(username=username)
+        except ObjectDoesNotExist:
+            return username
+        raise forms.ValidationError(_("Username is already taken."))
+
+    def save(self):
+        user = User.objects.create_user(
+            username=self.cleaned_data["username"],
+            email=self.cleaned_data["email"],
+            password=self.cleaned_data["password1"],
+            first_name=self.cleaned_data["fist_name"],
+            last_name=self.cleaned_data["last_name"],
+            is_active=False,
+        )
+        return user

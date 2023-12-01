@@ -3,8 +3,14 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 
+
 from app.utils import constants
 import datetime
+
+
+class CustomUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    verify_token = models.CharField(_("Verify token"), max_length=255, null=True)
 
 
 class Project(models.Model):
