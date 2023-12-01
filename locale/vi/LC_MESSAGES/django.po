@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-01 14:03+0700\n"
+"POT-Creation-Date: 2023-12-02 23:37+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,47 +17,48 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-#: .\app\models.py:9
+
+#: .\app\models.py:10
 msgid "Project name"
 msgstr "Tên dự án"
 
-#: .\app\models.py:10
+#: .\app\models.py:11
 msgid "Describe"
 msgstr "Mô tả"
 
-#: .\app\models.py:11 .\app\models.py:29 .\app\models.py:43
+#: .\app\models.py:12 .\app\models.py:38 .\app\models.py:56
 msgid "Start date"
 msgstr "Ngày bắt đầu"
 
-#: .\app\models.py:12 .\app\models.py:30 .\app\models.py:44
+#: .\app\models.py:13 .\app\models.py:39 .\app\models.py:57
 msgid "End date"
 msgstr "Ngày kết thúc"
 
-#: .\app\models.py:13 .\app\models.py:45
+#: .\app\models.py:15 .\app\models.py:59
 msgid "Status"
 msgstr "Trạng thái"
 
-#: .\app\models.py:14
+#: .\app\models.py:19
 msgid "Deleted at"
 msgstr ""
 
-#: .\app\models.py:15 .\app\models.py:31 .\app\models.py:47 .\app\models.py:59
+#: .\app\models.py:20 .\app\models.py:40 .\app\models.py:62 .\app\models.py:73
 msgid "User"
 msgstr ""
 
-#: .\app\models.py:24 .\app\models.py:38
+#: .\app\models.py:30 .\app\models.py:48
 msgid "Role"
 msgstr "Vai trò"
 
-#: .\app\models.py:28
+#: .\app\models.py:37
 msgid "Name"
 msgstr "Tên"
 
-#: .\app\models.py:42 .\app\models.py:56
+#: .\app\models.py:55 .\app\models.py:71
 msgid "Content"
 msgstr "Nội dung"
 
-#: .\app\models.py:61 .\app\templates\base.html:25
+#: .\app\models.py:75 .\app\templates\base.html:25
 msgid "Project"
 msgstr "Dự án"
 
@@ -73,10 +74,10 @@ msgstr "Đăng nhập"
 msgid "Search"
 msgstr "Tìm kiếm"
 
-#: .\projectmanagement\settings.py:132
+#: .\projectmanagement\settings.py:134
 msgid "English"
 msgstr "Tiếng Anh"
 
-#: .\projectmanagement\settings.py:132
+#: .\projectmanagement\settings.py:134
 msgid "Vietnamese"
 msgstr "Tiếng Việt"
