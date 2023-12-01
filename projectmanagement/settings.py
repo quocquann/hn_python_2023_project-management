@@ -42,8 +42,7 @@ INSTALLED_APPS = [
     "app.apps.AppConfig",
     "crispy_forms",
     "crispy_bootstrap5",
-
-    'widget_tweaks',
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [
@@ -70,6 +69,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "app.context_processors.constants",
             ],
         },
     },
