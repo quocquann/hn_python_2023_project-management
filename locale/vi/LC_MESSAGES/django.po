@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-04 09:22+0700\n"
+"POT-Creation-Date: 2023-12-04 13:43+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,49 +18,77 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: .\app\models.py:10
+#: .\app\models.py:11
 msgid "Project name"
 msgstr "Tên dự án"
 
-#: .\app\models.py:11
+#: .\app\models.py:12
 msgid "Describe"
 msgstr "Mô tả"
 
-#: .\app\models.py:12 .\app\models.py:38 .\app\models.py:56
+#: .\app\models.py:13 .\app\models.py:44 .\app\models.py:62
 msgid "Start date"
 msgstr "Ngày bắt đầu"
 
-#: .\app\models.py:13 .\app\models.py:39 .\app\models.py:57
+#: .\app\models.py:14 .\app\models.py:45 .\app\models.py:63
 msgid "End date"
 msgstr "Ngày kết thúc"
 
-#: .\app\models.py:15 .\app\models.py:59
+#: .\app\models.py:16 .\app\models.py:64
 msgid "Status"
 msgstr "Trạng thái"
 
-#: .\app\models.py:19
+#: .\app\models.py:20
 msgid "Deleted at"
 msgstr ""
 
-#: .\app\models.py:20 .\app\models.py:40 .\app\models.py:62 .\app\models.py:73
+#: .\app\models.py:21 .\app\models.py:46 .\app\models.py:66 .\app\models.py:77
 msgid "User"
 msgstr ""
 
-#: .\app\models.py:30 .\app\models.py:48
+#: .\app\models.py:36 .\app\models.py:54
 msgid "Role"
 msgstr "Vai trò"
 
-#: .\app\models.py:37
+#: .\app\models.py:43
 msgid "Name"
 msgstr "Tên"
 
-#: .\app\models.py:55 .\app\models.py:71
+#: .\app\models.py:61 .\app\models.py:75
 msgid "Content"
 msgstr "Nội dung"
 
-#: .\app\models.py:75 .\app\templates\base.html:25
+#: .\app\models.py:79 .\app\templates\base.html:25
 msgid "Project"
 msgstr "Dự án"
+
+#: .\app\templates\app\create_task.html:5 .\app\templates\app\tasks.html:10
+msgid "Create Task"
+msgstr ""
+
+#: .\app\templates\app\create_task.html:10
+#, fuzzy
+#| msgid "Task"
+msgid "Save Task"
+msgstr "Nhiệm vụ"
+
+#: .\app\templates\app\project_confirm_delete.html:6
+#, fuzzy
+#| msgid "Create project"
+msgid "Delete Project"
+msgstr "Tạo mới dự án"
+
+#: .\app\templates\app\project_confirm_delete.html:7
+msgid "Are you sure you want to delete the project:"
+msgstr "Bạn có chắc chắn muốn xóa dự án:"
+
+#: .\app\templates\app\project_confirm_delete.html:10
+msgid "Yes, delete"
+msgstr "Có, xóa"
+
+#: .\app\templates\app\project_confirm_delete.html:11
+msgid "No, take me back"
+msgstr "Không"
 
 #: .\app\templates\app\project_form.html:9
 msgid "Create project"
@@ -69,6 +97,58 @@ msgstr "Tạo mới dự án"
 #: .\app\templates\app\project_form.html:13
 msgid "Submit"
 msgstr "Hoàn thành"
+
+#: .\app\templates\app\tasks.html:6
+msgid "Nhiệm vụ trong giai đoạn:"
+msgstr ""
+
+#: .\app\templates\app\tasks.html:8
+msgid "Tất cả nhiệm vụ"
+msgstr ""
+
+#: .\app\templates\app\tasks.html:15
+#, fuzzy
+#| msgid "Content"
+msgid "Content:"
+msgstr "Nội dung"
+
+#: .\app\templates\app\tasks.html:17
+#, fuzzy
+#| msgid "Start date"
+msgid "Start Date:"
+msgstr "Ngày bắt đầu"
+
+#: .\app\templates\app\tasks.html:19
+#, fuzzy
+#| msgid "End date"
+msgid "End Date:"
+msgstr "Ngày kết thúc"
+
+#: .\app\templates\app\tasks.html:21
+#, fuzzy
+#| msgid "Status"
+msgid "Status:"
+msgstr "Trạng thái"
+
+#: .\app\templates\app\tasks.html:24
+msgid "Stage:"
+msgstr ""
+
+#: .\app\templates\app\tasks.html:26
+msgid " Users:"
+msgstr ""
+
+#: .\app\templates\app\tasks.html:29
+msgid "Delete"
+msgstr ""
+
+#: .\app\templates\app\tasks.html:32
+msgid "Update"
+msgstr ""
+
+#: .\app\templates\app\tasks.html:37
+msgid "Task not found."
+msgstr ""
 
 #: .\app\templates\base.html:28
 msgid "Task"

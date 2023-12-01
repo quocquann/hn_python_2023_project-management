@@ -1,21 +1,22 @@
 from .models import Project, UserProject
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from django.utils.translation import gettext_lazy as _
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.models import Group, User
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic.list import ListView
+from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
-from .models import Task,Stage,Project
+from .models import Task, Stage, Project
 from .forms import TaskForm
 from .helper import is_in_group
+
 # Create your views here.
 
 
@@ -39,32 +40,48 @@ class ProjectUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     success_url = reverse_lazy("project")
 
 
-def render_task_by_stage(request,stage_id):
-      stage = get_object_or_404(Stage, pk=stage_id)
-      tasks = Task.objects.filter(stage_id=stage_id)
-      template = loader.get_template('tasks.html')
-      context = {
-      'stage':stage,
-      'tasks': tasks,
-      }
-      return HttpResponse(template.render(context, request))
+def render_task_by_stage(request, stage_id):
+    stage = get_object_or_404(Stage, pk=stage_id)
+    tasks = Task.objects.filter(stage_id=stage_id)
+    template = loader.get_template("tasks.html")
+    context = {
+        "stage": stage,
+        "tasks": tasks,
+    }
+    return HttpResponse(template.render(context, request))
+
 
 def render_all_task(request):
-      tasks = Task.objects.all()
-      template = loader.get_template('app/tasks.html')
-      context = {
-            'tasks':tasks,
-            }
-      return HttpResponse(template.render(context, request))
+    tasks = Task.objects.all()
+    template = loader.get_template("app/tasks.html")
+    context = {
+        "tasks": tasks,
+    }
+    return HttpResponse(template.render(context, request))
+
+
 @user_passes_test(is_in_group)
 @login_required
 def create_task(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = TaskForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('tasks')  
+            return redirect("tasks")
     else:
         form = TaskForm()
 
-    return render(request, 'create_task.html', {'form': form})
+    return render(request, "create_task.html", {"form": form})
+
+
+class ProjectDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Project
+    permission_required = "app.project.can_delete_project"
+    success_url = reverse_lazy("project")
+
+
+class ProjectListView(ListView):
+    model = Project
+    queryset = Project.objects.all()
+    context_object_name = "project_list"
+    template_name = "app/project_list.html"
