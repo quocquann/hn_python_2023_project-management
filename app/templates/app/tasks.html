@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+
+{% if stage %}
+  <h1>{% trans "Nhiệm vụ trong giai đoạn:" %} {{ stage.name }}</h1>
+{% else %}
+  <h1>{% trans "Tất cả nhiệm vụ" %}</h1>
+{% endif %}
+<button class="bg-success" ><a class="btn btn-success" href={% url "create_task" %}>{% trans "Create Task" %}</a></button>
+{% if tasks %}
+  <ul class="list-group">
+    {% for task in tasks %}
+      <li class="list-group-item">
+        {% trans "Content:" %} {{ task.content }}
+        <br>
+        {% trans "Start Date:" %} {{ task.start_date }}
+        <br>
+        {% trans "End Date:" %} {{ task.end_date }}
+        <br>
+        {% trans "Status:" %} {{ task.status }}
+        <br>
+        
+        {% trans "Stage:" %} {{ task.stage.name }}
+        <br>
+       {% trans " Users:" %} {{ task.user.all|join:", " }}
+        <br>
+       
+        <a href="" class="btn btn-danger">{% trans "Delete" %}</a>
+
+        
+        <a href="" class="btn btn-primary">{% trans "Update" %}</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="alert alert-warning">{% trans "Task not found." %}</p>
+{% endif %}
+
+{% endblock %}
