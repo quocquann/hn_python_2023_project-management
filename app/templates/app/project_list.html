@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+
+{% block content %}
+
+    <div class="container bg-light py-3 mt-5">
+        <h1>{% translate "Project List" %}</h1>
+        
+        {% if project_list %}
+            <div class="row row-gap-4">
+                {% for project in project_list %}
+                <div class="col-3">
+                    <div class="card text-bg-light mb-3">
+                        <div class="card-header"><a class="fw-semibold" href="#">{{ project.name }}</a></div>
+                        <div class="card-body">
+                            <p class="card-text">{{project.describe}}</p>
+                            <a href="#" class="btn btn-primary">Update</a>
+                            <a href="#" class="btn btn-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>{% translate "There are no project." %}</p>
+        {% endif %}
+    </div>
+{% endblock %}
+

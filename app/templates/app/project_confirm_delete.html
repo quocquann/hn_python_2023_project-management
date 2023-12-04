@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container bg-light py-3 mt-5">
+    <h1>{% translate "Delete Project" %}</h1>
+    <p> {% translate "Are you sure you want to delete the project:" %} <span class="text-danger fw-bold">{{ project }}</span> ?</p>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn mt-3 btn-danger">{% translate "Yes, delete" %}</button> 
+        <a href="" class="btn mt-3 btn-primary">{% translate "No, take me back" %}</a>
+    </form>
+  </div>
+{% endblock %}

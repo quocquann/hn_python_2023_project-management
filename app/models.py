@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 
 from app.utils import constants
+import datetime
 
 
 class Project(models.Model):
@@ -21,6 +22,11 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+    def delete(self):
+        self.status = constants.CLOSED
+        self.deleted_at = datetime.datetime.now()
+        self.save()
 
 
 class UserProject(models.Model):
@@ -55,9 +61,13 @@ class Task(models.Model):
     content = models.CharField(_("Content"), max_length=200)
     start_date = models.DateField(_("Start date"))
     end_date = models.DateField(_("End date"))
-    status = models.IntegerField(_("Status"), choices=constants.TASK_STATUS_CHOICES, default=constants.TASK_STATUS_DEFAULT)
+    status = models.IntegerField(
+        _("Status"),
+        choices=constants.TASK_STATUS_CHOICES,
+        default=constants.TASK_STATUS_DEFAULT,
+    )
     stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
-    user = models.ManyToManyField(User, verbose_name=_("User"), through='UserTask')
+    user = models.ManyToManyField(User, verbose_name=_("User"), through="UserTask")
 
 
 class UserTask(models.Model):
