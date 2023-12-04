@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="col-6">
+<h2>{% trans "Create Task" %}</h2>
+
+<form method="post" action="{% url 'create_task' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="bg-success" type="submit">{% trans "Save Task" %}</button>
+</form>
+</div>
+
+
+{% endblock %}
