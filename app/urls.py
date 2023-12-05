@@ -10,4 +10,6 @@ urlpatterns = [
     path("tasks/", views.render_all_task, name="tasks"),
     path("stage/tasks/<int:stage_id>", views.render_task_by_stage, name="task-stage"),
     path("task/create", views.create_task, name="create_task"),
+    path('signup/', views.signUp, name='signup'),
+    path('verify/<uidb64>/<str:token>/', views.verify, name='verify'),
 ]

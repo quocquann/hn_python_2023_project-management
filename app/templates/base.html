@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <link rel="stylesheet" href="{% static "boostrap/css/bootstrap.min.css" %}">
+    {% block css %}{% endblock %}
     <script src="{% static "boostrap/js/bootstrap.bundle.min.js" %}"></script>
     <script src="{% static "boostrap/js/bootstrap.min.js" %}"></script>
     {% block title %}<title>Project Management</title>{% endblock title %}

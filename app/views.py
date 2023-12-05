@@ -1,23 +1,76 @@
-from .models import Project, UserProject
-from django.shortcuts import render, redirect
+from uuid import uuid4
+
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.models import Group, User
-from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import ListView
-from django.shortcuts import get_object_or_404
+from django.views.generic.list import ListView
 from django.urls import reverse, reverse_lazy
-from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth.decorators import login_required
-from .models import Task, Stage, Project
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.db import transaction
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail
+
+from app.forms import SignupForm
+from app.models import CustomUser
+from app.utils.helpers import check_token
+from projectmanagement.settings import EMAIL_HOST_USER
+from .models import Task, Stage, Project, UserProject
 from .forms import TaskForm
 from .helper import is_in_group
 
-# Create your views here.
+
+def signUp(request):
+    form = SignupForm()
+
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+
+        if form.is_valid():
+            with transaction.atomic():
+                new_user = form.save()
+
+                verify_token = uuid4()
+                CustomUser.objects.create(user=new_user, verify_token=verify_token)
+                mail_subject = 'Activate your account.'
+                verify_url = reverse('verify', kwargs={'uidb64': urlsafe_base64_encode(force_bytes(new_user.pk)),
+                                                       'token': str(verify_token)})
+                mail_message = f'Hi {new_user.username}, Please use this link to verify your account\n' \
+                               f'{request.build_absolute_uri(verify_url)}'
+                from_email = EMAIL_HOST_USER
+                send_mail(
+                    mail_subject,
+                    mail_message,
+                    from_email,
+                    [new_user.email],
+                    fail_silently=False
+                )
+
+            return HttpResponse(_('Please confirm your email address to complete the registration'))
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'registration/signup.html', context)
+
+
+def verify(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and check_token(user, token):
+        user.is_active = True
+        user.save()
+        return HttpResponse(_('Thank you for your email confirmation. Now you can login your account.'))
+    else:
+        return HttpResponse(_('Activation link is invalid!'))
 
 
 class ProjectCreate(LoginRequiredMixin, CreateView):
