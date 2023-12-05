@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% load i18n %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+{% endblock %}
+{% block content %}
+    {% if form.errors %}
+        <p>{% translate "Your username and password didn't match. Please try again." %}</p>
+    {% endif %}
+    {% if next %}
+        {% if user.is_authenticated %}
+            <p>{% translate "Your account doesn't have access to this page. To proceed, please login with an account that has access." %}</p>
+        {% else %}
+            <p>{% translate 'Please login to see this page.' %}</p>
+        {% endif %}
+    {% endif %}
+    <div class="content">
+        <main class="form-signin">
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <h1 class="h3 mb-3 fw-normal">{% trans 'Please sign in' %}</h1>
+
+                <div class="form-floating">
+                    {{ form.username|add_class:"form-control"|attr:"id:floatingInput" }}
+                    <label for="floatingInput">
+                        {% blocktranslate with username_label=form.username.label_tag %}
+                            {{ username_label }}{% endblocktranslate %}
+                    </label>
+                </div>
+                <div class="form-floating">
+                    {{ form.password|add_class:"form-control"|attr:"id:floatingPassword" }}
+                    <label for="floatingPassword">
+                        {% blocktranslate with pass_label=form.password.label_tag %}
+                            {{ pass_label }}{% endblocktranslate %}
+                    </label>
+                </div>
+                <div class="checkbox mb-3">
+                    <label>
+                        <input type="checkbox" value="remember-me"> Remember me
+                    </label>
+                </div>
+                <button class="w-100 btn btn-lg btn-primary" type="submit">{% trans 'Sign in' %}</button>
+                <input type="hidden" name="next" value="/"/>
+            </form>
+        </main>
+    </div>
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from . import views
 
 
@@ -12,4 +13,5 @@ urlpatterns = [
     path("task/create", views.create_task, name="create_task"),
     path('signup/', views.signUp, name='signup'),
     path('verify/<uidb64>/<str:token>/', views.verify, name='verify'),
+    path('login/', auth_views.LoginView.as_view(template_name='registration/signin.html'), name='login'),
 ]
