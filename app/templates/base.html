@@ -10,6 +10,7 @@
     {% block css %}{% endblock %}
     <script src="{% static "boostrap/js/bootstrap.bundle.min.js" %}"></script>
     <script src="{% static "boostrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "jquery/jquery-3.7.1.min.js" %}"></script>
     {% block title %}<title>Project Management</title>{% endblock title %}
 </head>
 <body>
@@ -44,6 +45,9 @@
 
     {% block content %}
     {% endblock content %}
+
+    {% block ajax %}
+    {% endblock ajax %}
 </body>
 </html>
 
