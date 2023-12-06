@@ -79,7 +79,7 @@
                     {% for stage in stages %}
                         <div class="card col-4" style="width: 18rem;">
                             <div class="card-body">
-                                <a href="#" class="card-title">{{stage.name}}</a>
+                                <a href="{% url 'detail-stage' project.pk stage.pk %}" class="card-title">{{stage.name}}</a>
                                 <p class="card-text">{% translate "Start date:" %} {{stage.start_date}}</p>
                                 <p class="card-text">{% translate "End date:" %} {{stage.end_date}}</p>
                             </div>

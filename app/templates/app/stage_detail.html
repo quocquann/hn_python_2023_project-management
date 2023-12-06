@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/stage_detail.css' %}">
+{% endblock %}
+{% block content %}
+    <main class="mt-5">
+        <div class="container-fluid ">
+            <div class="row column-gap-5 ">
+                <div class="col bg-light py-3">
+                    <h3>{{ stage.name }}</h3>
+                    <div>
+                        <p>{% translate "Start date:" %} {{ stage.start_date }}</p>
+                        <p>{% translate "End date:" %} {{ stage.end_date }}</p>
+                    </div>
+
+                    <div>
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">{% translate "Total" %}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>{% translate "Task" %}</td>
+                                <td>{{ task_count }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col bg-light py-3">
+                    <div>
+                        <h3>{% translate "Members" %}</h3>
+                        <table class="table table-bordered mt-4">
+                            <thead>
+                            <tr>
+                                <th scope="col">{% translate "Role" %}</th>
+                                <th scope="col">{% translate "Member" %}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Stage Owner</td>
+                                <td>
+
+                                    {% for user_stage in user_stages %}
+                                        {{ STAGE }}
+                                        {% if user_stage.role == STAGE_OWNER %}
+                                            {{ user_stage.user }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Dev</td>
+                                <td>
+                                    {% for user_stage in user_stages %}
+                                        {% if user_stage.role == MEMBER %}
+                                            {{ user_stage.user }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row p-3 bg-light mt-5 column-gap-5">
+                <h3 class="col-12">{% translate "Tasks" %}</h3>
+                {% if stages %}
+
+                    {% for task in tasks %}
+                        <div class="card col-4 task-container">
+                            <div class="card-body">
+                                <a href="#" class="card-title">{{ stage.name }}</a>
+                                <p class="card-text">{% translate "Start date:" %} {{ stage.start_date }}</p>
+                                <p class="card-text">{% translate "End date:" %} {{ stage.end_date }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p> {% translate "There is no task" %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+{% endblock content %}

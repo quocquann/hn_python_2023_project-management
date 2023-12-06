@@ -25,7 +25,7 @@ from django.core.mail import send_mail
 from projectmanagement.settings import EMAIL_HOST_USER
 from .models import Task, Stage, Project, UserProject, CustomUser, UserStage
 from .forms import SignupForm, TaskForm
-from .utils.helpers import check_token, is_pm, is_in_project, is_in_group
+from .utils.helpers import check_token, is_pm, is_in_project, is_in_group, is_stage_member_or_pm
 from .utils import constants
 from django.core.exceptions import PermissionDenied
 
@@ -211,3 +211,16 @@ class StageCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             role=constants.STAGE_OWNER
         )
         return HttpResponseRedirect(reverse_lazy('project-detail', kwargs={'pk': project.pk}))
+
+
+class StageDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    def test_func(self):
+        return is_stage_member_or_pm(user=self.request.user, stage=self.get_object())
+
+    model = Stage
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["user_stages"] = UserStage.objects.filter(stage=self.get_object())
+        context["tasks"] = Task.objects.filter(stage=self.get_object()).count()
+        return context

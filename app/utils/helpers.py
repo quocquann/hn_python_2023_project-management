@@ -1,5 +1,5 @@
-from ..models import UserProject, UserStage
 from . import constants
+from ..models import UserProject, UserStage
 
 
 def is_in_group(user):
@@ -22,3 +22,7 @@ def is_pm(user, project):
 def is_stage_owner(user, stage):
     user_stage = UserStage.objects.filter(user=user, stage=stage)
     return user_stage[0].role == constants.STAGE_OWNER
+
+
+def is_stage_member_or_pm(user, stage):
+    return UserStage.objects.filter(user=user, stage=stage).exists() or is_pm(user, stage.project)
