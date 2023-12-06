@@ -2,6 +2,10 @@ from ..models import UserProject, UserStage
 from . import constants
 
 
+def is_in_group(user):
+    return user.groups.filter(name__in=['Stage_Owner', 'PM']).exists()
+
+
 def check_token(user, token):
     return user.customuser.verify_token == token
 
