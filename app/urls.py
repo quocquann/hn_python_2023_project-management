@@ -1,7 +1,7 @@
-from django.urls import path
 from django.contrib.auth import views as auth_views
-from . import views
+from django.urls import path
 
+from . import views
 
 urlpatterns = [
     path("", views.ProjectListView.as_view(), name="project"),
@@ -22,4 +22,5 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
     path('delete_task/<int:pk>', views.delete_task, name='delete_task'),
     path('<int:project_id>/stages/create/', views.StageCreateView.as_view(), name='create-stage'),
+    path('<int:project_id>/stages/<int:pk>/', views.StageDetailView.as_view(), name='detail-stage'),
 ]

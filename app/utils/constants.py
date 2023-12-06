@@ -18,14 +18,14 @@ CLOSED = 1
 PROJECT_STATUS_DEFAULT = 0
 
 ROLE_USERPROJECT_CHOICES = (
-    (0, "Project Manager"),
-    (1, "Stage Owner"),
-    (2, "Member"),
+    (0, "Stage Owner"),
+    (1, "Member"),
+    (2, "Project Manager"),
 )
 
-PROJECT_MANAGER = 0
-STAGE_OWNER = 1
-MEMBER = 2
+PROJECT_MANAGER = 2
+STAGE_OWNER = 0
+MEMBER = 1
 
 ROLE_USERPROJECT_DEFAULT = 2
 
