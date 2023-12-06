@@ -23,7 +23,7 @@ class Project(models.Model):
         choices=constants.PROJECT_STATUS_CHOICES,
         default=constants.PROJECT_STATUS_DEFAULT,
     )
-    deleted_at = models.DateTimeField(_("Deleted at"), null=True)
+    deleted_at = models.DateTimeField(_("Deleted at"), null=True, blank=True)
     user = models.ManyToManyField(User, verbose_name=_("User"), through="UserProject")
 
     def __str__(self):

@@ -17,20 +17,15 @@ from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import (
     user_passes_test,
     login_required,
-    permission_required,
 )
 from django.db import transaction
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 
-from app.forms import SignupForm
-from app.models import CustomUser
-from app.utils.helpers import check_token
 from projectmanagement.settings import EMAIL_HOST_USER
-from .models import Task, Stage, Project, UserProject
-from .forms import TaskForm
-from .helper import is_in_group
-from .utils.helpers import is_pm, is_in_project
+from .models import Task, Stage, Project, UserProject, CustomUser, UserStage
+from .forms import SignupForm, TaskForm
+from .utils.helpers import check_token, is_pm, is_in_project, is_in_group
 from .utils import constants
 from django.core.exceptions import PermissionDenied
 
@@ -188,3 +183,31 @@ def delete_task(request, pk):
     task = get_object_or_404(Task, pk=pk)
     task.delete()
     return HttpResponse(_("Delete successfully"))
+
+
+class StageCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    def test_func(self):
+        return is_pm(self.request.user, self.kwargs.get('project_id'))
+
+    model = Stage
+    fields = ['name', 'start_date', 'end_date', 'user']
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['user'].label = 'Stage Owner'
+
+        return form
+
+    def form_valid(self, form):
+        project = get_object_or_404(Project, pk=self.kwargs.get('project_id'))
+        user = form.cleaned_data['user'].get()
+        stage = form.save(commit=False)
+        stage.project = project
+        stage.save()
+
+        UserStage.objects.create(
+            user=user,
+            stage=stage,
+            role=constants.STAGE_OWNER
+        )
+        return HttpResponseRedirect(reverse_lazy('project-detail', kwargs={'pk': project.pk}))
