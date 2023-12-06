@@ -13,7 +13,7 @@
                 {% for project in project_list %}
                 <div class="col-3" id="{{project.pk}}">
                     <div class="card text-bg-light mb-3">
-                        <div class="card-header"><a class="fw-semibold" href="#">{{ project.name }}</a></div>
+                        <div class="card-header"><a class="fw-semibold" href="{% url "project-detail" project.pk %}">{{ project.name }}</a></div>
                         <div class="card-body">
                             <p class="card-text">{{project.describe}}</p>
                             <a href="#" class="btn btn-primary">{% translate "Update" %}</a>

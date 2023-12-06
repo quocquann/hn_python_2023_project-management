@@ -3,12 +3,16 @@ from uuid import uuid4
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.contrib.auth.models import Group, User
-from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.views.generic.edit import CreateView, UpdateView
+from django.contrib.auth.models import User
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+)
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.list import ListView
+from django.views.generic import DetailView
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import (
     user_passes_test,
@@ -26,7 +30,9 @@ from projectmanagement.settings import EMAIL_HOST_USER
 from .models import Task, Stage, Project, UserProject
 from .forms import TaskForm
 from .helper import is_in_group
+from .utils.helpers import is_pm, is_in_project
 from .utils import constants
+from django.core.exceptions import PermissionDenied
 
 
 def signUp(request):
@@ -95,18 +101,19 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         project = form.save(commit=True)
-        UserProject.objects.create(user=self.request.user, project=project, role=0)
-        pm_group = Group.objects.get(name="PM")
-        user = User.objects.get(pk=self.request.user.pk)
-        user.groups.add(pm_group)
-        return HttpResponseRedirect(reverse_lazy("create-project"))
+        UserProject.objects.create(
+            user=self.request.user, project=project, role=constants.PROJECT_MANAGER
+        )
+        return HttpResponseRedirect(reverse_lazy("project"))
 
 
-class ProjectUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class ProjectUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Project
     fields = ["name", "describe", "end_date", "status"]
-    permission_required = "app.project.can_change_project"
-    success_url = reverse_lazy("create-project")
+    success_url = reverse_lazy("project")
+
+    def test_func(self):
+        return is_pm(self.request.user, self.get_object())
 
 
 def render_task_by_stage(request, stage_id):
@@ -144,11 +151,13 @@ def create_task(request):
 
 
 @login_required
-@permission_required("app.project.can_delete_project")
 def project_delete(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    project.delete()
-    return HttpResponse(_("Delete successfully"))
+    if is_pm(user=request.user, project=project):
+        project.delete()
+        return HttpResponse(_("Delete successfully"))
+    else:
+        raise PermissionDenied()
 
 
 class ProjectListView(ListView):
@@ -156,3 +165,18 @@ class ProjectListView(ListView):
     queryset = Project.objects.filter(status=constants.ACTIVE)
     context_object_name = "project_list"
     template_name = "app/project_list.html"
+
+
+class ProjectDetail(UserPassesTestMixin, DetailView):
+    def test_func(self):
+        return is_in_project(user=self.request.user, project=self.get_object())
+
+    model = Project
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["user_projects"] = UserProject.objects.filter(project=self.get_object())
+        stages = Stage.objects.filter(project=self.get_object())
+        context["stages"] = stages
+        context["task_count"] = Task.objects.filter(stage__in=stages).count()
+        return context
