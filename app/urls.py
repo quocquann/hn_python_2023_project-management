@@ -19,4 +19,6 @@ urlpatterns = [
         auth_views.LoginView.as_view(template_name="registration/signin.html"),
         name="login",
     ),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('delete_task/<int:pk>', views.delete_task, name='delete_task'),
 ]

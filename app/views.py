@@ -180,3 +180,11 @@ class ProjectDetail(UserPassesTestMixin, DetailView):
         context["stages"] = stages
         context["task_count"] = Task.objects.filter(stage__in=stages).count()
         return context
+
+@user_passes_test(is_in_group)
+@login_required
+def delete_task(request, pk):
+    success_url = reverse_lazy("tasks")	    
+    task = get_object_or_404(Task, pk=pk)
+    task.delete()
+    return HttpResponse(_("Delete successfully"))
