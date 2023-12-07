@@ -8,27 +8,27 @@
                 <div class="col bg-light py-3">
                     <h3>{% translate "Summary" %}</h3>
                     <p>
-                        <p>{% translate "Start date:" %} {{project.start_date}}</p>
-                        <p>{% translate "End date:" %} {{project.end_date}}</p>
+                    <p>{% translate "Start date:" %} {{ project.start_date }}</p>
+                    <p>{% translate "End date:" %} {{ project.end_date }}</p>
                     </p>
 
                     <div>
                         <table class="table table-bordered">
                             <thead>
-                                <tr>
-                                    <th scope="col"></th>
-                                    <th scope="col">{% translate "Total" %}</th>
-                                </tr>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">{% translate "Total" %}</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>{% translate "Task" %}</td>
-                                    <td>{{task_count}}</td>
-                                </tr>
-                                <tr>
-                                    <td>{% translate "Stage" %}</td>
-                                    <td>{{stages.count}}</td>
-                                </tr>
+                            <tr>
+                                <td>{% translate "Task" %}</td>
+                                <td>{{ task_count }}</td>
+                            </tr>
+                            <tr>
+                                <td>{% translate "Stage" %}</td>
+                                <td>{{ stages.count }}</td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -38,32 +38,32 @@
                         <h3>{% translate "Members" %}</h3>
                         <table class="table table-bordered mt-4">
                             <thead>
-                                <tr>
-                                    <th scope="col">{% translate "Role" %}</th>
-                                    <th scope="col">{% translate "Member" %}</th>
-                                </tr>
+                            <tr>
+                                <th scope="col">{% translate "Role" %}</th>
+                                <th scope="col">{% translate "Member" %}</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Dev</td>
-                                    <td>
-                                        {% for user_project in user_projects %}
-                                            {% if user_project.role == MEMBER %}
-                                                {{user_project.user}}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>PM</td>
-                                    <td>
-                                        {% for user_project in user_projects %}
-                                            {% if user_project.role == PM %}
-                                                {{user_project.user}}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>Dev</td>
+                                <td>
+                                    {% for user_project in user_projects %}
+                                        {% if user_project.role == MEMBER %}
+                                            {{ user_project.user }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PM</td>
+                                <td>
+                                    {% for user_project in user_projects %}
+                                        {% if user_project.role == PM %}
+                                            {{ user_project.user }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -71,17 +71,24 @@
             </div>
 
 
-
             <div class="row p-3 bg-light mt-5 column-gap-5">
-                <h3 class="col-12">{% translate "Stage" %}</h3>
+                <div class="d-flex justify-content-between mb-3">
+                    <h3 class="">{% translate "Stage" %}</h3>
+                    <a href="{% url 'create-stage' project.pk %}" class="btn btn-primary">{% translate "Create" %}</a>
+                </div>
+
                 {% if stages %}
 
                     {% for stage in stages %}
                         <div class="card col-4" style="width: 18rem;">
                             <div class="card-body">
-                                <a href="{% url 'detail-stage' project.pk stage.pk %}" class="card-title">{{stage.name}}</a>
-                                <p class="card-text">{% translate "Start date:" %} {{stage.start_date}}</p>
-                                <p class="card-text">{% translate "End date:" %} {{stage.end_date}}</p>
+                                <a href="{% url 'detail-stage' project.pk stage.pk %}"
+                                   class="card-title">{{ stage.name }}</a>
+                                <p class="card-text">{% translate "Start date:" %} {{ stage.start_date }}</p>
+                                <p class="card-text">{% translate "End date:" %} {{ stage.end_date }}</p>
+                                <a href="{% url 'update-stage' project.pk stage.pk %}" class="btn btn-primary">
+                                    {% translate "Update" %}
+                                </a>
                             </div>
                         </div>
                     {% endfor %}
