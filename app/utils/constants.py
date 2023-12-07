@@ -35,3 +35,11 @@ ROLE_USERSTAGE_CHOICES = (
 )
 
 ROLE_USERSTAGE_DEFAULT = 1
+
+STAGE_STATUS_CHOICES = (
+    (0, "Active"),
+    (1, "Closed"),
+    (2, "Slowed"),
+)
+
+STAGE_STATUS_DEFAULT = 0

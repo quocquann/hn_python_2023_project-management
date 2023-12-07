@@ -12,7 +12,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseRedirect
+from django.forms import model_to_dict
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template import loader
 from django.urls import reverse, reverse_lazy
@@ -178,7 +179,10 @@ class ProjectDetail(UserPassesTestMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["user_projects"] = UserProject.objects.filter(project=self.get_object())
         stages = Stage.objects.filter(project=self.get_object())
-        context["stages"] = stages
+        stage_active = stages.filter(status=constants.ACTIVE)
+        stage_closed = stages.filter(status=constants.CLOSED)
+        context["stage_active"] = stage_active
+        context["stage_closed"] = stage_closed
         context["task_count"] = Task.objects.filter(stage__in=stages).count()
         return context
 
@@ -249,3 +253,28 @@ class StageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         return is_pm(self.request.user, self.kwargs.get("project_id"))
+
+
+@login_required
+def delete_stage(request, project_id, pk):
+    stage = get_object_or_404(Stage, pk=pk, project_id=project_id)
+    if is_pm(user=request.user, project=stage.project):
+        stage.delete()
+
+        stage_data = model_to_dict(stage, exclude=["user"])
+
+        num_stages = Stage.objects.filter(
+            project=project_id, status=constants.ACTIVE
+        ).count()
+
+        return JsonResponse(
+            {
+                "message": _("Delete successfully"),
+                "stage": stage_data,
+                "num_stages": num_stages,
+            },
+            safe=False,
+            status=200,
+        )
+    else:
+        raise PermissionDenied()
