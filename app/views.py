@@ -303,3 +303,13 @@ def delete_member_from_project(request, project_pk, user_pk):
         return HttpResponse(_("Delete successfully"))
     else:
         raise PermissionDenied()
+
+
+class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    def test_func(self):
+        return self.request.user.pk == self.get_object().pk
+
+    model = User
+    template_name = "app/user_detail.html"
+    fields = ["username", "first_name", "last_name", "email"]
+    success_url = reverse_lazy("project")

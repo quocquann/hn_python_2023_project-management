@@ -36,6 +36,11 @@
                             <a class="nav-link" href="{% url 'login' %}">{% translate "Login" %}</a>
                         {% endif %}
                     </li>
+                    <li class="nav-item">
+                        {% if user.is_authenticated %}
+                            <a class="nav-link" href="{% url "user-update" user.pk%}">{% translate "Account" %}</a>
+                        {% endif %}
+                    </li>
                 </ul>
                 <form class="d-flex">
                     <input class="form-control me-2" type="search" placeholder="{% translate "Search" %}"
