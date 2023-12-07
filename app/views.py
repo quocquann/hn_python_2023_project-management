@@ -25,7 +25,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from projectmanagement.settings import EMAIL_HOST_USER
-from .forms import SignupForm, TaskForm, StageUpdateForm
+from .forms import SignupForm, TaskForm, StageUpdateForm, AddUserToProjectForm
 from .models import Task, Stage, Project, UserProject, CustomUser, UserStage
 from .utils import constants
 from .utils.helpers import (
@@ -169,7 +169,7 @@ class ProjectListView(ListView):
     template_name = "app/project_list.html"
 
 
-class ProjectDetail(UserPassesTestMixin, DetailView):
+class ProjectDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def test_func(self):
         return is_in_project(user=self.request.user, project=self.get_object())
 
@@ -276,5 +276,40 @@ def delete_stage(request, project_id, pk):
             safe=False,
             status=200,
         )
+
+
+def AddUserToProject(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+
+    if is_pm(user=request.user, project=project):
+        form = AddUserToProjectForm()
+        if request.method == "POST":
+            form = AddUserToProjectForm(request.POST)
+            if form.is_valid():
+                user = get_object_or_404(User, email=form.cleaned_data["email"])
+
+                UserProject.objects.create(
+                    user=user, project=project, role=form.cleaned_data["role"]
+                )
+
+                mail_subject = "Add to project"
+                mail_message = _(
+                    f"User have been already added to project {project} by {request.user}"
+                )
+                from_email = EMAIL_HOST_USER
+                send_mail(
+                    mail_subject,
+                    mail_message,
+                    from_email,
+                    [user.email],
+                    fail_silently=False,
+                )
+                return HttpResponseRedirect(
+                    reverse_lazy("project-detail", kwargs={"pk": pk})
+                )
+            else:
+                form = AddUserToProjectForm(initial={"email": form.email})
+        context = {"form": form}
+        return render(request, "app/add_user_to_project.html", context=context)
     else:
         raise PermissionDenied()

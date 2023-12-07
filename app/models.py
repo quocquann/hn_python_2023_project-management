@@ -37,11 +37,15 @@ class Project(models.Model):
 class UserProject(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
     role = models.IntegerField(
         _("Role"),
         choices=constants.ROLE_USERPROJECT_CHOICES,
         default=constants.ROLE_USERPROJECT_DEFAULT,
     )
+
+    class Meta:
+        unique_together = (("user", "project"),)
 
 
 class Stage(models.Model):

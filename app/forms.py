@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
+from .utils import constants
 
 from .models import Task, Stage, UserStage
 from .utils import constants
@@ -153,3 +154,12 @@ class StageUpdateForm(forms.ModelForm):
             instance.save()
 
         return instance
+
+
+class AddUserToProjectForm(forms.Form):
+    email = forms.CharField(max_length=1000, required=True)
+    role = forms.ChoiceField(
+        choices=constants.ROLE_CHOICES,
+        required=False,
+        initial=constants.MEMBER,
+    )
