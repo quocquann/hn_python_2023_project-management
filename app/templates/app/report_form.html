@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+    <div class="container bg-light py-3 mt-5">
+        <h3>{% translate "Create report" %}</h3>
+        <form id="create-form" action="" method="POST">
+            {% csrf_token %}
+            <div data-mdb-input-init class="form-outline mb-4">
+                <label class="form-label" >{% translate "Date" %}</label>
+                <input id="date" class="form-control" type="text" value="Disabled" disabled readonly>      
+            </div>
+            <div data-mdb-input-init class="form-outline mb-4">
+                <label class="form-label" >{% translate "What are you doing today?" %}</label>
+                <textarea id="did" class="form-control" rows="4"></textarea>      
+            </div>
+            <div data-mdb-input-init class="form-outline mb-4">
+                <label class="form-label" >{% translate "How many problem today?" %}</label>
+                <textarea id="problem" class="form-control" rows="2"></textarea>      
+            </div>
+            <div data-mdb-input-init class="form-outline mb-4">
+                <label class="form-label" >{% translate "What will you do tomorrow?" %}</label>
+                <textarea id="will-do" class="form-control" rows="2"></textarea>      
+            </div>
+            <input id="content" name="content" class="form-control" hidden type="text" value="">  
+            <button id="submitBtn" class="btn btn-primary">{% translate "Save" %}</button>
+        </form>
+    </div>
+{% endblock content %}
+
+{% block ajax %}
+    <script src="{% static "js/report_form.js"%}"></script>
+{% endblock ajax %}
+

@@ -23,7 +23,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 
 from projectmanagement.settings import EMAIL_HOST_USER
-from .models import Task, Stage, Project, UserProject, CustomUser, UserStage
+from .models import Task, Stage, Project, UserProject, CustomUser, UserStage, Report
 from .forms import SignupForm, TaskForm, AddUserToProjectForm
 from .utils.helpers import (
     check_token,
@@ -168,7 +168,7 @@ class ProjectListView(ListView):
     template_name = "app/project_list.html"
 
 
-class ProjectDetail(UserPassesTestMixin, DetailView):
+class ProjectDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def test_func(self):
         return is_in_project(user=self.request.user, project=self.get_object())
 
@@ -303,3 +303,50 @@ def delete_member_from_project(request, project_pk, user_pk):
         return HttpResponse(_("Delete successfully"))
     else:
         raise PermissionDenied()
+
+
+class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    def test_func(self):
+        return self.request.user.pk == self.get_object().pk
+
+    model = User
+    template_name = "app/user_detail.html"
+    fields = ["username", "first_name", "last_name", "email"]
+    success_url = reverse_lazy("project")
+
+
+class CreateReport(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Report
+    fields = ["content"]
+
+    def test_func(self):
+        project = get_object_or_404(Project, pk=self.kwargs.get("project_pk"))
+        return is_in_project(user=self.request.user, project=project)
+
+    def form_valid(self, form):
+        project = get_object_or_404(Project, pk=self.kwargs.get("project_pk"))
+        Report.objects.create(
+            content=form.cleaned_data["content"],
+            user=self.request.user,
+            project=project,
+        )
+
+        user_project = UserProject.objects.filter(
+            project=project, role=constants.PROJECT_MANAGER
+        )
+        pm = User.objects.get(pk=user_project[0].user.pk)
+
+        mail_subject = f"{[project.name]} Report"
+        mail_message = _(
+            f"{self.request.user} have already created a report\n"
+            f"{form.cleaned_data['content']}"
+        )
+        from_email = EMAIL_HOST_USER
+        send_mail(
+            mail_subject,
+            mail_message,
+            from_email,
+            [pm.email],
+            fail_silently=False,
+        )
+        return HttpResponseRedirect(reverse_lazy("project"))

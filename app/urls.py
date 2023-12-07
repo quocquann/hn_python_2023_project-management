@@ -38,4 +38,10 @@ urlpatterns = [
         views.delete_member_from_project,
         name="delete-member-from-project",
     ),
+    path("account/<int:pk>", views.UserUpdate.as_view(), name="user-update"),
+    path(
+        "<int:project_pk>/report/create",
+        views.CreateReport.as_view(),
+        name="create-report",
+    ),
 ]
