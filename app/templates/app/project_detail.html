@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load i18n %}
 
 {% block content %}
@@ -27,7 +28,7 @@
                             </tr>
                             <tr>
                                 <td>{% translate "Stage" %}</td>
-                                <td>{{ stages.count }}</td>
+                                <td id="num-stage">{{ stage_active.count }}</td>
                             </tr>
                             </tbody>
                         </table>
@@ -77,10 +78,9 @@
                     <a href="{% url 'create-stage' project.pk %}" class="btn btn-primary">{% translate "Create" %}</a>
                 </div>
 
-                {% if stages %}
-
-                    {% for stage in stages %}
-                        <div class="card col-4" style="width: 18rem;">
+                {% if stage_active %}
+                    {% for stage in stage_active %}
+                        <div class="card col-4" style="width: 18rem;" id="stage-{{ stage.pk }}">
                             <div class="card-body">
                                 <a href="{% url 'detail-stage' project.pk stage.pk %}"
                                    class="card-title">{{ stage.name }}</a>
@@ -89,6 +89,11 @@
                                 <a href="{% url 'update-stage' project.pk stage.pk %}" class="btn btn-primary">
                                     {% translate "Update" %}
                                 </a>
+                                <button class="btn btn-danger delete-stage" data-stage-id="{{ stage.pk }}"
+                                        data-project-id="{{ project.pk }}">
+                                    {% translate "Delete" %}
+                                    {% csrf_token %}
+                                </button>
                             </div>
                         </div>
                     {% endfor %}
@@ -96,7 +101,32 @@
                     <p> {% translate "There is no stage " %}</p>
                 {% endif %}
             </div>
+            <div class="row p-3 bg-light mt-5 column-gap-5 stage-closed">
+                <h3 class="col-12">{% translate "Stage Closed" %}</h3>
+                {% if stage_closed %}
+                    {% for stage in stage_closed %}
+                        <div class="card text-white bg-secondary mb-3 col-4" style="width: 18rem;"
+                             id="stage-{{ stage.pk }}">
+                            <div class="card-body">
+                                <a href="{% url 'detail-stage' project.pk stage.pk %}"
+                                   class="card-title">{{ stage.name }}</a>
+                                <p class="card-text">{% translate "Start date:" %} {{ stage.start_date }}</p>
+                                <p class="card-text">{% translate "End date:" %} {{ stage.end_date }}</p>
+                                <button class="btn btn-info active-stage" data-stage-id="{{ stage.pk }}"
+                                        data-project-id="{{ project.pk }}">
+                                    {% translate "Active" %}
+                                    {#                                    {% csrf_token %}#}
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
     </main>
 {% endblock content %}
+{% block js %}
+    <script src="{% static 'sweetalert2/sweetalert2.js' %}"></script>
+    <script src="{% static 'js/delete_stage.js' %}"></script>
+{% endblock js %}
 

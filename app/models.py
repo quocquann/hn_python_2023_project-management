@@ -1,11 +1,10 @@
-from django.utils.translation import gettext_lazy as _
-from django.db import models
-from django.contrib.auth.models import User
-from django.urls import reverse_lazy
+import datetime
 
+from django.contrib.auth.models import User
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from app.utils import constants
-import datetime
 
 
 class CustomUser(models.Model):
@@ -51,6 +50,17 @@ class Stage(models.Model):
     end_date = models.DateField(_("End date"))
     user = models.ManyToManyField(User, verbose_name=_("User"), through="UserStage")
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    status = models.IntegerField(
+        _("Status"),
+        choices=constants.STAGE_STATUS_CHOICES,
+        default=constants.STAGE_STATUS_DEFAULT,
+    )
+    deleted_at = models.DateTimeField(_("Deleted at"), null=True, blank=True)
+
+    def delete(self, *args, **kwargs):
+        self.status = constants.CLOSED
+        self.deleted_at = datetime.datetime.now()
+        self.save()
 
 
 class UserStage(models.Model):
@@ -61,6 +71,9 @@ class UserStage(models.Model):
         choices=constants.ROLE_USERSTAGE_CHOICES,
         default=constants.ROLE_USERSTAGE_DEFAULT,
     )
+
+    class _Meta:
+        unique_together = ["user", "stage"]
 
 
 class Task(models.Model):

@@ -36,4 +36,9 @@ urlpatterns = [
         views.StageUpdateView.as_view(),
         name="update-stage",
     ),
+    path(
+        "<int:project_id>/stages/<int:pk>/delete/",
+        views.delete_stage,
+        name="delete-stage",
+    ),
 ]
