@@ -1,33 +1,39 @@
 from uuid import uuid4
 
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.translation import gettext_lazy as _
-from django.views.generic.edit import CreateView, UpdateView
-from django.contrib.auth.models import User
-from django.contrib.auth.mixins import (
-    LoginRequiredMixin,
-    UserPassesTestMixin,
-)
-from django.template import loader
-from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic.list import ListView
-from django.views.generic import DetailView
-from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import (
     user_passes_test,
     login_required,
 )
-from django.db import transaction
-from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+)
+from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
+from django.db import transaction
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.template import loader
+from django.urls import reverse, reverse_lazy
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import DetailView
+from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.list import ListView
 
 from projectmanagement.settings import EMAIL_HOST_USER
+from .forms import SignupForm, TaskForm, StageUpdateForm
 from .models import Task, Stage, Project, UserProject, CustomUser, UserStage
-from .forms import SignupForm, TaskForm
-from .utils.helpers import check_token, is_pm, is_in_project, is_in_group, is_stage_member_or_pm
 from .utils import constants
-from django.core.exceptions import PermissionDenied
+from .utils.helpers import (
+    check_token,
+    is_pm,
+    is_in_project,
+    is_in_group,
+    is_stage_member_or_pm,
+)
 
 
 def signUp(request):
@@ -176,10 +182,11 @@ class ProjectDetail(UserPassesTestMixin, DetailView):
         context["task_count"] = Task.objects.filter(stage__in=stages).count()
         return context
 
+
 @user_passes_test(is_in_group)
 @login_required
 def delete_task(request, pk):
-    success_url = reverse_lazy("tasks")	    
+    success_url = reverse_lazy("tasks")
     task = get_object_or_404(Task, pk=pk)
     task.delete()
     return HttpResponse(_("Delete successfully"))
@@ -187,30 +194,29 @@ def delete_task(request, pk):
 
 class StageCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def test_func(self):
-        return is_pm(self.request.user, self.kwargs.get('project_id'))
+        return is_pm(self.request.user, self.kwargs.get("project_id"))
 
     model = Stage
-    fields = ['name', 'start_date', 'end_date', 'user']
+    fields = ["name", "start_date", "end_date", "user"]
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.fields['user'].label = 'Stage Owner'
+        form.fields["user"].label = "Stage Owner"
 
         return form
 
     def form_valid(self, form):
-        project = get_object_or_404(Project, pk=self.kwargs.get('project_id'))
-        user = form.cleaned_data['user'].get()
+        project_id = self.kwargs.get("project_id")
+        project = get_object_or_404(Project, pk=project_id)
+        user = form.cleaned_data["user"].get()
         stage = form.save(commit=False)
         stage.project = project
         stage.save()
 
-        UserStage.objects.create(
-            user=user,
-            stage=stage,
-            role=constants.STAGE_OWNER
-        )
-        return HttpResponseRedirect(reverse_lazy('project-detail', kwargs={'pk': project.pk}))
+        UserStage.objects.create(user=user, stage=stage, role=constants.STAGE_OWNER)
+
+        success_url = reverse("project-detail", kwargs={"pk": project_id})
+        return redirect(success_url)
 
 
 class StageDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
@@ -224,3 +230,22 @@ class StageDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context["user_stages"] = UserStage.objects.filter(stage=self.get_object())
         context["tasks"] = Task.objects.filter(stage=self.get_object()).count()
         return context
+
+
+class StageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Stage
+    form_class = StageUpdateForm
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "detail-stage",
+            kwargs={"pk": self.object.pk, "project_id": self.kwargs.get("project_id")},
+        )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["project_id"] = self.kwargs.get("project_id")
+        return kwargs
+
+    def test_func(self):
+        return is_pm(self.request.user, self.kwargs.get("project_id"))
