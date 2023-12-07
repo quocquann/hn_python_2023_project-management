@@ -32,4 +32,10 @@ urlpatterns = [
         name="detail-stage",
     ),
     path("<int:pk>/addUser", views.AddUserToProject, name="add-user-to-project"),
+    path("<int:project_pk>/members", views.MemberListView.as_view(), name="member"),
+    path(
+        "<int:project_pk>/members/<int:user_pk>/delete",
+        views.delete_member_from_project,
+        name="delete-member-from-project",
+    ),
 ]

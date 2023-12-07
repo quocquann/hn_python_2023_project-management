@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container bg-light py-3 mt-5">
+        <h3>{% translate "Member" %}</h3>
+        <table class="table table-bordered ">
+            <thead>
+                <tr>
+                    <th scope="col">{% translate "Member" %}</th>
+                    <th scope="col">{% translate "Role" %}</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in list_member %}
+                    <tr id="{{member.user.pk}}">
+                        <td>{{member.user}}</td>
+                        <td>
+                            {% if member.role == STAGE_OWNER %}
+                                {% translate "Stage owner" %}
+                            {% else %}
+                                {% translate "Member" %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button data-id="{{member.user.pk}}" data-member-name="{{member.user}}" data-url="{% url "delete-member-from-project" project_pk member.user.pk %}" data-bs-toggle="modal" data-bs-target="#deleteModal" class="btn btn-danger open-Dialog">{% translate "Delete" %}</button> 
+                        </td>  
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModalLabel">{% translate "Delete Project" %}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button id="deleteButton" type="button" class="btn btn-danger" data-bs-dismiss="modal">{% translate "Yes, delete" %}</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">{% translate "No, take me back" %}</button>             
+            </div>
+            </div>
+        </div>
+    </div>
+
+    {% csrf_token %}
+{% endblock content %}
+
+{% block ajax %}
+    <script src="{% static "js/member_ajax.js" %}"></script>
+{% endblock ajax %}
+
+
+
