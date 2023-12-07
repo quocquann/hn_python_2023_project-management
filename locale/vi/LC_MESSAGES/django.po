@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-04 13:43+0700\n"
+"POT-Creation-Date: 2023-12-07 09:49+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,51 +18,112 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: .\app\models.py:11
+#: .\app\forms.py:51
+msgid "Username"
+msgstr ""
+
+#: .\app\forms.py:52
+msgid "Email"
+msgstr ""
+
+#: .\app\forms.py:53
+msgid "First Name"
+msgstr ""
+
+#: .\app\forms.py:54
+#, fuzzy
+#| msgid "Name"
+msgid "Last Name"
+msgstr "Tên"
+
+#: .\app\forms.py:56
+msgid "Password"
+msgstr ""
+
+#: .\app\forms.py:59
+msgid "Confirm Password"
+msgstr ""
+
+#: .\app\forms.py:66 .\app\forms.py:71
+msgid "Email or Password invalid."
+msgstr ""
+
+#: .\app\forms.py:81
+msgid "Password does not match"
+msgstr ""
+
+#: .\app\forms.py:88
+msgid "Username can only contain alphanumeric characters and the underscore."
+msgstr ""
+
+#: .\app\forms.py:95
+msgid "Username is already taken."
+msgstr ""
+
+#: .\app\models.py:13
+msgid "Verify token"
+msgstr ""
+
+#: .\app\models.py:17
 msgid "Project name"
 msgstr "Tên dự án"
 
-#: .\app\models.py:12
+#: .\app\models.py:18
 msgid "Describe"
 msgstr "Mô tả"
 
-#: .\app\models.py:13 .\app\models.py:44 .\app\models.py:62
+#: .\app\models.py:19 .\app\models.py:54 .\app\models.py:72
 msgid "Start date"
 msgstr "Ngày bắt đầu"
 
-#: .\app\models.py:14 .\app\models.py:45 .\app\models.py:63
+#: .\app\models.py:20 .\app\models.py:55 .\app\models.py:73
 msgid "End date"
 msgstr "Ngày kết thúc"
 
-#: .\app\models.py:16 .\app\models.py:64
+#: .\app\models.py:22 .\app\models.py:75
 msgid "Status"
 msgstr "Trạng thái"
 
-#: .\app\models.py:20
+#: .\app\models.py:26
 msgid "Deleted at"
 msgstr ""
 
-#: .\app\models.py:21 .\app\models.py:46 .\app\models.py:66 .\app\models.py:77
+#: .\app\models.py:27 .\app\models.py:56 .\app\models.py:80 .\app\models.py:91
 msgid "User"
 msgstr ""
 
-#: .\app\models.py:36 .\app\models.py:54
+#: .\app\models.py:43 .\app\models.py:64
+#: .\app\templates\app\project_detail.html:43
+#: .\app\templates\app\stage_detail.html:41
 msgid "Role"
 msgstr "Vai trò"
 
-#: .\app\models.py:43
+#: .\app\models.py:53
 msgid "Name"
 msgstr "Tên"
 
-#: .\app\models.py:61 .\app\models.py:75
+#: .\app\models.py:71 .\app\models.py:89
 msgid "Content"
 msgstr "Nội dung"
 
-#: .\app\models.py:79 .\app\templates\base.html:25
+#: .\app\models.py:93 .\app\templates\base.html:29
 msgid "Project"
 msgstr "Dự án"
 
-#: .\app\templates\app\create_task.html:5 .\app\templates\app\tasks.html:10
+#: .\app\templates\403.html:6
+msgid "Don't have permission to view this page"
+msgstr ""
+
+#: .\app\templates\app\add_user_to_project.html:7
+msgid "Add member"
+msgstr ""
+
+#: .\app\templates\app\add_user_to_project.html:11
+#: .\app\templates\app\project_detail.html:39
+msgid "Add"
+msgstr ""
+
+#: .\app\templates\app\create_task.html:5 .\app\templates\app\tasks.html:11
 msgid "Create Task"
 msgstr ""
 
@@ -72,100 +133,267 @@ msgstr ""
 msgid "Save Task"
 msgstr "Nhiệm vụ"
 
-#: .\app\templates\app\project_confirm_delete.html:6
+#: .\app\templates\app\project_detail.html:9
+msgid "Summary"
+msgstr ""
+
+#: .\app\templates\app\project_detail.html:11
+#: .\app\templates\app\project_detail.html:94
+#: .\app\templates\app\stage_detail.html:14
+#: .\app\templates\app\stage_detail.html:83
+#, fuzzy
+#| msgid "Start date"
+msgid "Start date:"
+msgstr "Ngày bắt đầu"
+
+#: .\app\templates\app\project_detail.html:12
+#: .\app\templates\app\project_detail.html:95
+#: .\app\templates\app\stage_detail.html:15
+#: .\app\templates\app\stage_detail.html:84
+#, fuzzy
+#| msgid "End date"
+msgid "End date:"
+msgstr "Ngày kết thúc"
+
+#: .\app\templates\app\project_detail.html:20
+#: .\app\templates\app\stage_detail.html:23
+msgid "Total"
+msgstr ""
+
+#: .\app\templates\app\project_detail.html:25
+#: .\app\templates\app\stage_detail.html:28 .\app\templates\base.html:32
+msgid "Task"
+msgstr "Nhiệm vụ"
+
+#: .\app\templates\app\project_detail.html:29
+#: .\app\templates\app\project_detail.html:87
+msgid "Stage"
+msgstr ""
+
+#: .\app\templates\app\project_detail.html:38
+#: .\app\templates\app\stage_detail.html:37
+msgid "Members"
+msgstr ""
+
+#: .\app\templates\app\project_detail.html:44
+#: .\app\templates\app\stage_detail.html:42
+msgid "Member"
+msgstr ""
+
+#: .\app\templates\app\project_detail.html:69
+msgid "Stage-Oner"
+msgstr ""
+
+#: .\app\templates\app\project_detail.html:100
+msgid "There is no stage "
+msgstr ""
+
+#: .\app\templates\app\project_form.html:9
+#: .\app\templates\app\stage_form.html:8
+msgid "Create project"
+msgstr "Tạo mới dự án"
+
+#: .\app\templates\app\project_form.html:13
+#: .\app\templates\app\stage_form.html:12
+msgid "Submit"
+msgstr "Hoàn thành"
+
+#: .\app\templates\app\project_list.html:9
+#, fuzzy
+#| msgid "Project"
+msgid "Project List"
+msgstr "Dự án"
+
+#: .\app\templates\app\project_list.html:19 .\app\templates\app\tasks.html:31
+msgid "Update"
+msgstr ""
+
+#: .\app\templates\app\project_list.html:21 .\app\templates\app\tasks.html:29
+msgid "Delete"
+msgstr ""
+
+#: .\app\templates\app\project_list.html:29
+#, fuzzy
+#| msgid "Create project"
+msgid "There are no project."
+msgstr "Tạo mới dự án"
+
+#: .\app\templates\app\project_list.html:37
 #, fuzzy
 #| msgid "Create project"
 msgid "Delete Project"
 msgstr "Tạo mới dự án"
 
-#: .\app\templates\app\project_confirm_delete.html:7
+#: .\app\templates\app\project_list.html:41
 msgid "Are you sure you want to delete the project:"
 msgstr "Bạn có chắc chắn muốn xóa dự án:"
 
-#: .\app\templates\app\project_confirm_delete.html:10
+#: .\app\templates\app\project_list.html:44 .\app\templates\app\tasks.html:49
 msgid "Yes, delete"
 msgstr "Có, xóa"
 
-#: .\app\templates\app\project_confirm_delete.html:11
+#: .\app\templates\app\project_list.html:45 .\app\templates\app\tasks.html:50
 msgid "No, take me back"
 msgstr "Không"
 
-#: .\app\templates\app\project_form.html:9
-msgid "Create project"
-msgstr "Tạo mới dự án"
+#: .\app\templates\app\stage_detail.html:76
+#, fuzzy
+#| msgid "Task"
+msgid "Tasks"
+msgstr "Nhiệm vụ"
 
-#: .\app\templates\app\project_form.html:13
-msgid "Submit"
-msgstr "Hoàn thành"
+#: .\app\templates\app\stage_detail.html:89
+msgid "There is no task"
+msgstr ""
 
-#: .\app\templates\app\tasks.html:6
+#: .\app\templates\app\tasks.html:7
 msgid "Nhiệm vụ trong giai đoạn:"
 msgstr ""
 
-#: .\app\templates\app\tasks.html:8
+#: .\app\templates\app\tasks.html:9
 msgid "Tất cả nhiệm vụ"
 msgstr ""
 
-#: .\app\templates\app\tasks.html:15
+#: .\app\templates\app\tasks.html:16
 #, fuzzy
 #| msgid "Content"
 msgid "Content:"
 msgstr "Nội dung"
 
-#: .\app\templates\app\tasks.html:17
+#: .\app\templates\app\tasks.html:18
 #, fuzzy
 #| msgid "Start date"
 msgid "Start Date:"
 msgstr "Ngày bắt đầu"
 
-#: .\app\templates\app\tasks.html:19
+#: .\app\templates\app\tasks.html:20
 #, fuzzy
 #| msgid "End date"
 msgid "End Date:"
 msgstr "Ngày kết thúc"
 
-#: .\app\templates\app\tasks.html:21
+#: .\app\templates\app\tasks.html:22
 #, fuzzy
 #| msgid "Status"
 msgid "Status:"
 msgstr "Trạng thái"
 
-#: .\app\templates\app\tasks.html:24
+#: .\app\templates\app\tasks.html:25
 msgid "Stage:"
 msgstr ""
 
-#: .\app\templates\app\tasks.html:26
+#: .\app\templates\app\tasks.html:27
 msgid " Users:"
 msgstr ""
 
-#: .\app\templates\app\tasks.html:29
-msgid "Delete"
-msgstr ""
-
-#: .\app\templates\app\tasks.html:32
-msgid "Update"
-msgstr ""
-
-#: .\app\templates\app\tasks.html:37
+#: .\app\templates\app\tasks.html:36
 msgid "Task not found."
 msgstr ""
 
-#: .\app\templates\base.html:28
-msgid "Task"
+#: .\app\templates\app\tasks.html:42
+#, fuzzy
+#| msgid "Task"
+msgid "Delete Task"
 msgstr "Nhiệm vụ"
 
-#: .\app\templates\base.html:31
+#: .\app\templates\app\tasks.html:46
+#, fuzzy
+#| msgid "Are you sure you want to delete the project:"
+msgid "Are you sure you want to delete the task:"
+msgstr "Bạn có chắc chắn muốn xóa dự án:"
+
+#: .\app\templates\base.html:36
 msgid "Login"
 msgstr "Đăng nhập"
 
-#: .\app\templates\base.html:35 .\app\templates\base.html:36
+#: .\app\templates\base.html:41 .\app\templates\base.html:43
 msgid "Search"
 msgstr "Tìm kiếm"
 
-#: .\projectmanagement\settings.py:124
+#: .\app\templates\base.html:47
+msgid "Hi"
+msgstr ""
+
+#: .\app\templates\base.html:50
+msgid "Log out"
+msgstr ""
+
+#: .\app\templates\registration\signin.html:10
+msgid "Your username and password didn't match. Please try again."
+msgstr ""
+
+#: .\app\templates\registration\signin.html:14
+msgid ""
+"Your account doesn't have access to this page. To proceed, please login with "
+"an account that has access."
+msgstr ""
+
+#: .\app\templates\registration\signin.html:16
+msgid "Please login to see this page."
+msgstr ""
+
+#: .\app\templates\registration\signin.html:23
+msgid "Please sign in"
+msgstr ""
+
+#: .\app\templates\registration\signin.html:28
+#, python-format
+msgid ""
+"\n"
+"                            %(username_label)s"
+msgstr ""
+
+#: .\app\templates\registration\signin.html:35
+#, python-format
+msgid ""
+"\n"
+"                            %(pass_label)s"
+msgstr ""
+
+#: .\app\templates\registration\signin.html:44
+msgid "Sign in"
+msgstr ""
+
+#: .\app\templates\registration\signup.html:18
+msgid "Sign up"
+msgstr ""
+
+#: .\app\templates\registration\signup.html:21
+msgid "There were errors in the form:"
+msgstr ""
+
+#: .\app\templates\registration\signup.html:84
+msgid "I agree all statements in "
+msgstr ""
+
+#: .\app\templates\registration\signup.html:84
+msgid "Terms of service"
+msgstr ""
+
+#: .\app\templates\registration\signup.html:88
+msgid "Register"
+msgstr ""
+
+#: .\app\views.py:73
+msgid "Please confirm your email address to complete the registration"
+msgstr ""
+
+#: .\app\views.py:93
+msgid "Thank you for your email confirmation. Now you can login your account."
+msgstr ""
+
+#: .\app\views.py:96
+msgid "Activation link is invalid!"
+msgstr ""
+
+#: .\app\views.py:159 .\app\views.py:192
+msgid "Delete successfully"
+msgstr ""
+
+#: .\projectmanagement\settings.py:126
 msgid "English"
 msgstr "Tiếng Anh"
 
-#: .\projectmanagement\settings.py:124
+#: .\projectmanagement\settings.py:126
 msgid "Vietnamese"
 msgstr "Tiếng Việt"

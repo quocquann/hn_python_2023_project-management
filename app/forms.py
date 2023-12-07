@@ -2,40 +2,47 @@ import re
 
 from django import forms
 from django.contrib.auth.models import User
-from .models import Task,Stage
+from .models import Task, Stage
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
+from .utils import constants
 
 
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ['content', 'start_date', 'end_date', 'status', 'stage', 'user']
+        fields = ["content", "start_date", "end_date", "status", "stage", "user"]
         widgets = {
-            'user': forms.CheckboxSelectMultiple,
-            'stage': forms.Select(attrs={'class': 'form-select'}),
+            "user": forms.CheckboxSelectMultiple,
+            "stage": forms.Select(attrs={"class": "form-select"}),
         }
 
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)
-        self.fields['start_date'].widget = forms.DateInput(attrs={'type': 'date'})
-        self.fields['end_date'].widget = forms.DateInput(attrs={'type': 'date'})
-        self.fields['stage'].queryset = Stage.objects.all()
-        self.fields['user'].queryset = User.objects.all()
+        self.fields["start_date"].widget = forms.DateInput(attrs={"type": "date"})
+        self.fields["end_date"].widget = forms.DateInput(attrs={"type": "date"})
+        self.fields["stage"].queryset = Stage.objects.all()
+        self.fields["user"].queryset = User.objects.all()
 
     def clean(self):
         cleaned_data = super().clean()
-        start_date = cleaned_data.get('start_date')
-        end_date = cleaned_data.get('end_date')
-        stage = cleaned_data.get('stage')
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+        stage = cleaned_data.get("stage")
 
         if start_date and end_date and stage:
             if start_date < stage.start_date:
-                self.add_error('start_date', 'Start date must be greater than or equal to the start date of the stage.')
+                self.add_error(
+                    "start_date",
+                    "Start date must be greater than or equal to the start date of the stage.",
+                )
 
             if end_date > stage.end_date:
-                self.add_error('end_date', 'End date must be less than or equal to the end date of the stage.')
+                self.add_error(
+                    "end_date",
+                    "End date must be less than or equal to the end date of the stage.",
+                )
 
         return cleaned_data
 
@@ -56,9 +63,7 @@ class SignupForm(forms.Form):
         email = self.cleaned_data["email"]
         email_pattern = re.compile(r"^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$")
         if not re.search(email_pattern, email):
-            raise forms.ValidationError(
-                _("Email or Password invalid.")
-            )
+            raise forms.ValidationError(_("Email or Password invalid."))
         try:
             User.objects.get(username=email)
         except ObjectDoesNotExist:
@@ -79,7 +84,9 @@ class SignupForm(forms.Form):
         username = self.cleaned_data["username"]
         if not re.search(r"^\w+$", username):
             raise forms.ValidationError(
-                _("Username can only contain alphanumeric characters and the underscore.")
+                _(
+                    "Username can only contain alphanumeric characters and the underscore."
+                )
             )
         try:
             User.objects.get(username=username)
@@ -97,3 +104,12 @@ class SignupForm(forms.Form):
             is_active=False,
         )
         return user
+
+
+class AddUserToProjectForm(forms.Form):
+    email = forms.CharField(max_length=1000, required=True)
+    role = forms.ChoiceField(
+        choices=constants.ROLE_USERPROJECT_CHOICES,
+        required=False,
+        initial=constants.MEMBER,
+    )
