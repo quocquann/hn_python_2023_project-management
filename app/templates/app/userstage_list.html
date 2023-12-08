@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/userstage_list.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="container bg-light py-3 mt-5">
+        <h1>{% translate "Stage Member" %}</h1>
+        <div class="Button Button--start">
+            <a class="Add btn" href="{% url 'add-member-to-stage' project_id stage_id %}">
+                <span>{% trans 'Add' %}</span>
+            </a>
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        {% if userstage_list %}
+            <div class="row row-gap-4">
+                {% for userstage in userstage_list %}
+                    <div class="col-3" id="{{ userstage.user.pk }}">
+                        <div class="card text-bg-light mb-3">
+                            <div class="card-header"><a class="fw-semibold"
+                                                        href="#">{{ userstage.user.username }}</a>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">{{ userstage.user.first_name }} {{ userstage.user.last_name }}</p>
+                                <p class="card-text">{{ userstage.user.email }}</p>
+                                <p class="card-text">
+                                    {% if userstage.role == MEMBER %}
+                                        {% translate "Member" %}
+                                    {% elif userstage.role == STAGE_OWNER %}
+                                        {% translate "Stage Owner" %}
+                                    {% endif %}
+                                </p>
+                                <a href="#" class="btn btn-primary">{% translate "Delete" %}</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>{% translate "There are no user." %}</p>
+        {% endif %}
+    </div>
+
+{% endblock %}

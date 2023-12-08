@@ -35,6 +35,9 @@
                 <div class="col bg-light py-3">
                     <div>
                         <h3>{% translate "Members" %}</h3>
+                        <a href="{% url 'stage-member' project_id stage.pk %}" class="btn btn-info">
+                            {% translate "Member" %}
+                        </a>
                         <table class="table table-bordered mt-4">
                             <thead>
                             <tr>
