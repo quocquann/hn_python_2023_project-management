@@ -41,4 +41,5 @@ urlpatterns = [
         views.delete_stage,
         name="delete-stage",
     ),
+    path("<int:pk>/addUser", views.AddUserToProject, name="add-user-to-project"),
 ]

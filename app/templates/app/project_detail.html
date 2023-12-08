@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 {% load i18n %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static "css/project_detail.css" %}">
+{% endblock css %}
+
 
 {% block content %}
     <main class="mt-5">
@@ -37,6 +43,7 @@
                 <div class="col bg-light py-3">
                     <div>
                         <h3>{% translate "Members" %}</h3>
+                        <a href="{% url "add-user-to-project" project.pk%}">{% translate "Add" %}</a>
                         <table class="table table-bordered mt-4">
                             <thead>
                             <tr>
@@ -45,26 +52,36 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <td>Dev</td>
-                                <td>
-                                    {% for user_project in user_projects %}
-                                        {% if user_project.role == MEMBER %}
-                                            {{ user_project.user }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>PM</td>
-                                <td>
-                                    {% for user_project in user_projects %}
-                                        {% if user_project.role == PM %}
-                                            {{ user_project.user }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>Dev</td>
+                                    <td>
+                                        {% for user_project in user_projects %}
+                                            {% if user_project.role == MEMBER %}
+                                                {{user_project.user}}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>PM</td>
+                                    <td>
+                                        {% for user_project in user_projects %}
+                                            {% if user_project.role == PM %}
+                                                {{user_project.user}}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>{% translate "Stage-Oner" %}</td>
+                                    <td>
+                                        {% for user_project in user_projects %}
+                                            {% if user_project.role == STAGE_OWNER %}
+                                                {{user_project.user}}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -80,7 +97,7 @@
 
                 {% if stage_active %}
                     {% for stage in stage_active %}
-                        <div class="card col-4" style="width: 18rem;" id="stage-{{ stage.pk }}">
+                        <div class="card col-4" id="stage-{{ stage.pk }}">
                             <div class="card-body">
                                 <a href="{% url 'detail-stage' project.pk stage.pk %}"
                                    class="card-title">{{ stage.name }}</a>
