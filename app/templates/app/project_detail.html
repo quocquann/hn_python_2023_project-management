@@ -43,7 +43,7 @@
                 <div class="col bg-light py-3">
                     <div>
                         <h3>{% translate "Members" %}</h3>
-                        <a href="{% url "add-user-to-project" project.pk%}">{% translate "Add" %}</a>
+                        <a href="{% url "add-user-to-project" project.pk %}">{% translate "Add" %}</a>
                         <table class="table table-bordered mt-4">
                             <thead>
                             <tr>
@@ -52,36 +52,36 @@
                             </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Dev</td>
-                                    <td>
-                                        {% for user_project in user_projects %}
-                                            {% if user_project.role == MEMBER %}
-                                                {{user_project.user}}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>PM</td>
-                                    <td>
-                                        {% for user_project in user_projects %}
-                                            {% if user_project.role == PM %}
-                                                {{user_project.user}}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>{% translate "Stage-Oner" %}</td>
-                                    <td>
-                                        {% for user_project in user_projects %}
-                                            {% if user_project.role == STAGE_OWNER %}
-                                                {{user_project.user}}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>Dev</td>
+                                <td>
+                                    {% for user_project in user_projects %}
+                                        {% if user_project.role == MEMBER %}
+                                            {{ user_project.user }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PM</td>
+                                <td>
+                                    {% for user_project in user_projects %}
+                                        {% if user_project.role == PM %}
+                                            {{ user_project.user }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>{% translate "Stage-Oner" %}</td>
+                                <td>
+                                    {% for user_project in user_projects %}
+                                        {% if user_project.role == STAGE_OWNER %}
+                                            {{ user_project.user }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -119,7 +119,7 @@
                 {% endif %}
             </div>
             <div class="row p-3 bg-light mt-5 column-gap-5 stage-closed">
-                <h3 class="col-12">{% translate "Stage Closed" %}</h3>
+                <h3 class="col-12">{% translate "Stage Inactive" %}</h3>
                 {% if stage_closed %}
                     {% for stage in stage_closed %}
                         <div class="card text-white bg-secondary mb-3 col-4" style="width: 18rem;"

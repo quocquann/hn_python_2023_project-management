@@ -4,7 +4,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
-from .utils import constants
 
 from .models import Task, Stage, UserStage
 from .utils import constants
@@ -107,6 +106,22 @@ class SignupForm(forms.Form):
         return user
 
 
+class StageCreateForm(forms.ModelForm):
+    user = forms.ModelChoiceField(queryset=User.objects.all(), label=_("Stage Owner"))
+
+    class Meta:
+        model = Stage
+        fields = ["name", "start_date", "end_date", "user"]
+
+    def __init__(self, *args, **kwargs):
+        project_id = kwargs.pop("project_id", None)
+        super(StageCreateForm, self).__init__(*args, **kwargs)
+
+        if project_id:
+            users_for_project = User.objects.filter(project__id=project_id)
+            self.fields["user"].queryset = users_for_project
+
+
 class StageUpdateForm(forms.ModelForm):
     user = forms.ModelChoiceField(queryset=User.objects.all(), label=_("Stage Owner"))
 
@@ -131,7 +146,6 @@ class StageUpdateForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
         user = self.cleaned_data["user"]
-
         if user:
             old_stage_owner = UserStage.objects.filter(
                 stage=instance, role=constants.STAGE_OWNER
@@ -141,11 +155,11 @@ class StageUpdateForm(forms.ModelForm):
                 old_stage_owner.role = constants.MEMBER
                 old_stage_owner.save()
 
-            user_stage = UserStage.objects.get(user=user, stage=instance)
-            if user_stage:
+            try:
+                user_stage = UserStage.objects.get(user=user, stage=instance)
                 user_stage.role = constants.STAGE_OWNER
                 user_stage.save()
-            else:
+            except ObjectDoesNotExist:
                 UserStage.objects.create(
                     user=user, stage=instance, role=constants.STAGE_OWNER
                 )
