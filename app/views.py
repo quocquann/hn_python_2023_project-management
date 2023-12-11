@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.contrib import messages
 from django.contrib.auth.decorators import (
     user_passes_test,
     login_required,
@@ -34,6 +35,7 @@ from .utils.helpers import (
     is_in_project,
     is_in_group,
     is_stage_member_or_pm,
+    is_pm_or_stage_owner,
 )
 
 
@@ -233,6 +235,7 @@ class StageDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["user_stages"] = UserStage.objects.filter(stage=self.get_object())
         context["tasks"] = Task.objects.filter(stage=self.get_object()).count()
+        context["project_id"] = self.kwargs.get("project_id")
         return context
 
 
@@ -313,3 +316,76 @@ def AddUserToProject(request, pk):
         return render(request, "app/add_user_to_project.html", context=context)
     else:
         raise PermissionDenied()
+
+
+class StageMemberListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = UserStage
+
+    def test_func(self):
+        stage = get_object_or_404(Stage, pk=self.kwargs.get("pk"))
+        return is_stage_member_or_pm(user=self.request.user, stage=stage)
+
+    def get_queryset(self):
+        return UserStage.objects.filter(stage=self.kwargs.get("pk")).select_related(
+            "user"
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["project_id"] = self.kwargs.get("project_id")
+        context["stage_id"] = self.kwargs.get("pk")
+        return context
+
+
+@login_required
+def add_member_to_stage(request, project_id, pk):
+    project = get_object_or_404(Project, pk=project_id)
+    if not is_pm_or_stage_owner(user=request.user, stage=pk, project=project):
+        messages.error(request, _("You don't have permission to do this"))
+        return redirect("stage-member", project_id=project_id, pk=pk)
+
+    user_in_project = UserProject.objects.filter(
+        project=project,
+        role=constants.MEMBER,
+    )
+
+    users_in_stage_list = (
+        UserStage.objects.filter(stage=pk)
+        .select_related("user")
+        .values_list("user", flat=True)
+    )
+    user_in_project_ex = user_in_project.exclude(user__in=users_in_stage_list)
+
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        user = get_object_or_404(User, pk=user_id)
+        stage = get_object_or_404(Stage, pk=pk)
+        UserStage.objects.create(user=user, stage=stage, role=constants.MEMBER)
+
+        mail_subject = "Add to stage"
+        mail_message = _(
+            f"User have been already added to stage {stage.name} of project {project} by {request.user}"
+        )
+        from_email = EMAIL_HOST_USER
+        send_mail(
+            mail_subject,
+            mail_message,
+            from_email,
+            [user.email],
+            fail_silently=False,
+        )
+        return JsonResponse(
+            {
+                "message": _("Add successfully"),
+            },
+            safe=False,
+            status=200,
+        )
+
+    context = {
+        "user_in_project": user_in_project_ex,
+        "project_id": project_id,
+        "stage_id": pk,
+    }
+
+    return render(request, "app/add_member_to_stage.html", context)

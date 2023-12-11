@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/add_member_to_stage.css' %}">
+{% endblock %}
+
+{% block content %}
+    <ul class="list-group list-group-light ">
+        {% for user in user_in_project %}
+            <li class="list-group-item d-flex justify-content-between align-items-center border-0 rounded-3 list-group-item-action">
+                <div class="d-flex align-items-center">
+                    <img src="{% static 'images/signup.jpg' %}"
+                         class="rounded-circle image" alt=""/>
+                    <div class="ms-3">
+                        <p class="fw-bold mb-1">{{ user.user.username }}</p>
+                        <p class="text-muted mb-0">{{ user.user.first_name }} {{ user.user.last_name }}</p>
+                        <p class="text-muted mb-0">{{ user.user.email }}</p>
+                    </div>
+                </div>
+                <button class="btn btn-primary add-member" id="btn-{{ user.user.pk }}"
+                        data-project-id="{{ project_id }}"
+                        data-stage-id="{{ stage_id }}"
+                        data-user-id="{{ user.user.pk }}">
+                    {% translate "Add" %}
+                    {% csrf_token %}
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+{% block js %}
+    <script src="{% static 'js/add_member_to_stage.js' %}"></script>
+{% endblock %}
+

@@ -42,4 +42,14 @@ urlpatterns = [
         name="delete-stage",
     ),
     path("<int:pk>/addUser", views.AddUserToProject, name="add-user-to-project"),
+    path(
+        "<int:project_id>/stages/<int:pk>/member/",
+        views.StageMemberListView.as_view(),
+        name="stage-member",
+    ),
+    path(
+        "<int:project_id>/stages/<int:pk>/member/add/",
+        views.add_member_to_stage,
+        name="add-member-to-stage",
+    ),
 ]
