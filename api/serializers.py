@@ -1,3 +1,4 @@
+import datetime
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
@@ -5,6 +6,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from app.utils.helpers import check_token
+from app.models import Project
 
 
 class SignUpSerializers(serializers.ModelSerializer):
@@ -82,3 +84,14 @@ class VerifySerializers(serializers.ModelSerializer):
         instance.is_active = True
         instance.save()
         return instance
+
+
+class CreateProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ["name", "describe", "end_date"]
+
+    def validate_end_date(self, value):
+        if value < datetime.date.today():
+            raise serializers.ValidationError(_("Invalid date - end date in past"))
+        return value

@@ -1,7 +1,6 @@
 from django.urls import path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
 from . import views
 
 urlpatterns = [
@@ -15,4 +14,5 @@ urlpatterns = [
     path("token/refresh", TokenRefreshView.as_view(), name="token_refresh"),
     path("signup", views.SignUp.as_view(), name="signup"),
     path("verify/<str:uidb64>/<str:token>", views.Verify.as_view(), name="verify"),
+    path("projects", views.create_project, name="create_project"),
 ]
