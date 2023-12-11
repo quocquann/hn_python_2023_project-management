@@ -24,6 +24,7 @@ $(document).ready(function () {
                     url: url,
                     data: {},
                     success: (res) => {
+                        console.log(res)
                         let stage = res.stage
                         $('.stage-closed').append(`
                             <div class="card text-white bg-secondary mb-3 col-4" style="width: 18rem;"
@@ -41,13 +42,20 @@ $(document).ready(function () {
                         `)
                         $('#num-stage').text(res.num_stages)
                         $(`#${remove_id}`).remove()
-
+                        swalWithBootstrapButtons.fire({
+                            title: "Deleted!",
+                            text: "Your stage has been deleted.",
+                            icon: "success"
+                        });
+                    },
+                    error: (res) => {
+                        let text = res.responseJSON.message
+                        swalWithBootstrapButtons.fire({
+                            title: "Cancelled",
+                            text: text,
+                            icon: "error"
+                        });
                     }
-                });
-                swalWithBootstrapButtons.fire({
-                    title: "Deleted!",
-                    text: "Your stage has been deleted.",
-                    icon: "success"
                 });
             } else if (
                 result.dismiss === Swal.DismissReason.cancel
