@@ -1,4 +1,4 @@
-const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
 
 const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
@@ -6,13 +6,14 @@ const swalWithBootstrapButtons = Swal.mixin({
         cancelButton: "btn btn-danger"
     },
     buttonsStyling: false
-});
+})
 
 $(document).on("click", ".open-Dialog", function () {
-    let project_name = $(this).data('project-name')
+    let member_name = $(this).data('member-name')
     let url = $(this).data('url')
+    $(".modal-body").html("Are you sure you want to delete member: " + member_name)
     let id = $(this).data('id')
-    $(".modal-body").html("Are you sure you want to delete the project: " + project_name)
+
 
     $(document).on("click", "#deleteButton", function () {
         $.ajax({
@@ -23,15 +24,15 @@ $(document).on("click", ".open-Dialog", function () {
             success: () => {
                 swalWithBootstrapButtons.fire({
                     title: "Deleted!",
-                    text: "Your project has been deleted.",
+                    text: "Member has been deleted.",
                     icon: "success"
-                });
+                })
                 $(`#${id}`).remove()
             },
             error: () => {
                 swalWithBootstrapButtons.fire({
                     title: "Fail",
-                    text: "Fail to delete project",
+                    text: "Fail to delete member",
                     icon: "error"
                 });
             }

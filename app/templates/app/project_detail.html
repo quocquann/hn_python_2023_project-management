@@ -43,7 +43,8 @@
                 <div class="col bg-light py-3">
                     <div>
                         <h3>{% translate "Members" %}</h3>
-                        <a href="{% url "add-user-to-project" project.pk %}">{% translate "Add" %}</a>
+                        <a href="{% url "add-user-to-project" project.pk%}">{% translate "Add" %}</a>
+                        <a class="mx-2" href="{% url "member" project.pk%}">{% translate "Detail" %}</a>
                         <table class="table table-bordered mt-4">
                             <thead>
                             <tr>
