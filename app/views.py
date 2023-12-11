@@ -297,6 +297,7 @@ def delete_stage(request, project_id, pk):
     )
 
 
+@login_required
 def AddUserToProject(request, pk):
     project = get_object_or_404(Project, pk=pk)
 
@@ -350,6 +351,30 @@ class StageMemberListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["project_id"] = self.kwargs.get("project_id")
         context["stage_id"] = self.kwargs.get("pk")
+
+
+class MemberListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    template_name = "app/member_list.html"
+    context_object_name = "list_member"
+
+    def test_func(self):
+        project_pk = self.kwargs.get("project_pk")
+        project = get_object_or_404(Project, pk=project_pk)
+        return is_in_project(user=self.request.user, project=project)
+
+    def get_queryset(self):
+        project_pk = self.kwargs.get("project_pk")
+        project = get_object_or_404(Project, pk=project_pk)
+        user_projects = (
+            UserProject.objects.filter(project=project)
+            .order_by("role")
+            .select_related("user")
+        )
+        return user_projects
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["project_pk"] = self.kwargs.get("project_pk")
         return context
 
 
@@ -405,3 +430,21 @@ def add_member_to_stage(request, project_id, pk):
     }
 
     return render(request, "app/add_member_to_stage.html", context)
+
+
+@login_required
+def delete_member_from_project(request, project_pk, user_pk):
+    user = get_object_or_404(User, pk=user_pk)
+    project = get_object_or_404(Project, pk=project_pk)
+    user_project = get_object_or_404(UserProject, user=user, project=project)
+
+    if is_pm(user=request.user, project=project) and (
+        not is_pm(user=user, project=project)
+    ):
+        stages = Stage.objects.filter(project=project)
+        user_stage = UserStage.objects.filter(stage__in=stages, user=user)
+        user_stage.delete()
+        user_project.delete()
+        return HttpResponse(_("Delete successfully"))
+    else:
+        raise PermissionDenied()

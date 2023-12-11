@@ -26,7 +26,10 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">{% translate "Project" %}</a>
+                        <a class="nav-link" href="{% url "project" %}">{% translate "Project" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url "create-project" %}">{% translate "New Project" %}</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">{% translate "Task" %}</a>

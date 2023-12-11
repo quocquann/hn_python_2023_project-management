@@ -16,7 +16,9 @@ def is_in_project(user, project):
 
 def is_pm(user, project):
     user_project = UserProject.objects.filter(user=user, project=project)
-    return user_project[0].role == constants.PROJECT_MANAGER
+    if user_project.exists():
+        return user_project[0].role == constants.PROJECT_MANAGER
+    return False
 
 
 def is_stage_owner(user, stage):
