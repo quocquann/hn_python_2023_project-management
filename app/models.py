@@ -90,12 +90,9 @@ class Task(models.Model):
         default=constants.TASK_STATUS_DEFAULT,
     )
     stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
-    user = models.ManyToManyField(User, verbose_name=_("User"), through="UserTask")
+    user = models.ForeignKey(User,on_delete=models.SET_NULL, null=True )
 
 
-class UserTask(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
 
 
 class Report(models.Model):

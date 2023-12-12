@@ -11,13 +11,14 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from app.models import Project, UserProject, Stage, Task, UserStage
 from app.utils import constants
-from app.utils.helpers import send_mail_verification
+from app.utils.helpers import send_mail_verification,is_in_project
 from .permissions import IsPM, IsPMOrProjectMember, IsPMOrStageOwner
 from .serializers import (
     SignUpSerializers,
@@ -29,6 +30,7 @@ from .serializers import (
     MemberProjectSerializer,
     AddMemberStageSerializers,
     UserStageSerializers,
+    TaskSerializer
 )
 
 
@@ -115,6 +117,26 @@ def update_project(request, project_id):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TaskList(APIView):
+    pagination_class = PageNumberPagination
+    permission_classes = (IsAuthenticated, )
+
+    def get_object_tasks_by_stage(self, stage_id):  
+           tasks = Task.objects.filter(stage_id=stage_id)
+           return tasks
+        
+    def get(self, request, project_id, stage_id):       
+        project = Project.objects.get(id=project_id)
+        tasks = self.get_object_tasks_by_stage(stage_id=stage_id)
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(tasks, request)
+
+        if is_in_project(user=request.user, project=project):
+            data = TaskSerializer(result_page, many=True).data
+            return paginator.get_paginated_response(data)
+
+        return Response(status=status.HTTP_403_FORBIDDEN)
 
 
 class StageList(APIView, LimitOffsetPagination):
