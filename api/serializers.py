@@ -1,12 +1,14 @@
 import datetime
+
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from app.models import Stage, UserProject, UserStage, Project
+from app.utils import constants
 from app.utils.helpers import check_token
-from app.models import Project
 
 
 class SignUpSerializers(serializers.ModelSerializer):
@@ -95,3 +97,43 @@ class ProjectSerializer(serializers.ModelSerializer):
         if value < datetime.date.today():
             raise serializers.ValidationError(_("Invalid date - end date in past"))
         return value
+
+
+class StageSerializers(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all())
+
+    class Meta:
+        model = Stage
+        fields = ["name", "start_date", "end_date", "user"]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        representation["user"] = UserStage.objects.values("user_id").get(
+            stage=instance, role=constants.STAGE_OWNER
+        )
+        return representation
+
+    def validate(self, data):
+        if data["start_date"] > data["end_date"]:
+            raise serializers.ValidationError(_("Start date must be before end date"))
+
+        project_id = self.context.get("project_id")
+        user_projects = UserProject.objects.filter(
+            project_id=project_id, user=data["user"]
+        )
+
+        if not user_projects.exists():
+            raise serializers.ValidationError(_("User is not in project"))
+
+        return data
+
+    def create(self, validated_data):
+        project_id = self.context.get("project_id")
+        user = validated_data.pop("user")
+        stage = Stage.objects.create(project_id=project_id, **validated_data)
+        UserStage.objects.create(user=user, stage=stage, role=constants.STAGE_OWNER)
+        UserProject.objects.filter(user=user, project_id=project_id).update(
+            role=constants.STAGE_OWNER
+        )
+        return stage

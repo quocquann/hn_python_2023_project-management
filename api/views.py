@@ -1,24 +1,27 @@
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.forms import model_to_dict
+from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app.utils.helpers import send_mail_verification
-from .serializers import SignUpSerializers, VerifySerializers, ProjectSerializer
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
 from app.models import Project, UserProject
-from .permissions import IsPM
 from app.utils import constants
+from app.utils.helpers import send_mail_verification
+from .permissions import IsPM
+from .serializers import (
+    SignUpSerializers,
+    VerifySerializers,
+    ProjectSerializer,
+    StageSerializers,
+)
 
 
 class SignUp(APIView):
@@ -104,3 +107,22 @@ def update_project(request, project_id):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StageList(APIView):
+    permission_classes = [IsAuthenticated, IsPM]
+
+    @extend_schema(
+        request=StageSerializers,
+        responses={
+            201: StageSerializers,
+        },
+    )
+    def post(self, request, project_id):
+        serializer = StageSerializers(
+            data=request.data, context={"project_id": project_id}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
