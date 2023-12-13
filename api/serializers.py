@@ -2,6 +2,7 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -137,3 +138,32 @@ class StageSerializers(serializers.ModelSerializer):
             role=constants.STAGE_OWNER
         )
         return stage
+
+    def update(self, instance, validated_data):
+        project_id = self.context.get("project_id")
+        user = validated_data.pop("user")
+
+        instance.name = validated_data.get("name", instance.name)
+        instance.start_date = validated_data.get("start_date", instance.start_date)
+        instance.end_date = validated_data.get("end_date", instance.end_date)
+        instance.save()
+
+        if user:
+            UserProject.objects.filter(
+                project_id=project_id, role=constants.STAGE_OWNER
+            ).update(role=constants.MEMBER)
+
+            UserStage.objects.filter(stage=instance, role=constants.STAGE_OWNER).update(
+                role=constants.MEMBER
+            )
+
+            try:
+                stage_owner = UserStage.objects.get(user=user, stage=instance)
+                stage_owner.role = constants.STAGE_OWNER
+                stage_owner.save()
+            except ObjectDoesNotExist:
+                UserStage.objects.create(
+                    user=user, stage=instance, role=constants.STAGE_OWNER
+                )
+
+        return instance
