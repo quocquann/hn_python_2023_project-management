@@ -86,7 +86,7 @@ class VerifySerializers(serializers.ModelSerializer):
         return instance
 
 
-class CreateProjectSerializer(serializers.ModelSerializer):
+class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ["name", "describe", "end_date"]
