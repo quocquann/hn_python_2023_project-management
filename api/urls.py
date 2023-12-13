@@ -23,4 +23,9 @@ urlpatterns = [
     path(
         "projects/<int:project_id>/stages", views.StageList.as_view(), name="stage_list"
     ),
+    path(
+        "projects/<int:project_id>/stages/<int:stage_id>",
+        views.StageDetail.as_view(),
+        name="stage_detail",
+    ),
 ]

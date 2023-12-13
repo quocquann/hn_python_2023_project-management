@@ -139,3 +139,23 @@ def delete_project(request, project_id):
         )
     project.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class StageDetail(APIView):
+    permission_classes([IsAuthenticated, IsPM])
+
+    @extend_schema(
+        request=StageSerializers,
+        responses={
+            201: StageSerializers,
+        },
+    )
+    def put(self, request, project_id, stage_id):
+        stage = get_object_or_404(Stage, pk=stage_id)
+        serializer = StageSerializers(
+            stage, data=request.data, context={"project_id": project_id}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
