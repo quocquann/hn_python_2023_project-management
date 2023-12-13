@@ -12,7 +12,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app.models import Project, UserProject
+from app.models import Project, UserProject, Stage
 from app.utils import constants
 from app.utils.helpers import send_mail_verification
 from .permissions import IsPM
@@ -102,7 +102,7 @@ def create_project(request):
 @permission_classes([IsAuthenticated, IsPM])
 def update_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    serializer = ProjectSerializer(project, data=request.data)
+    serializer = ProjectSerializer(project, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -126,3 +126,16 @@ class StageList(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated, IsPM])
+def delete_project(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    if Stage.objects.filter(project=project, status=constants.ACTIVE):
+        return Response(
+            {"detail": "Can not delete project - Project already has stage"},
+            status.HTTP_400_BAD_REQUEST,
+        )
+    project.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
