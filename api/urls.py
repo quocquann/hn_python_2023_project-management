@@ -16,4 +16,7 @@ urlpatterns = [
     path("verify/<str:uidb64>/<str:token>", views.Verify.as_view(), name="verify"),
     path("projects", views.create_project, name="create_project"),
     path("projects/<int:project_id>", views.update_project, name="update_project"),
+    path(
+        "projects/<int:project_id>/stages", views.StageList.as_view(), name="stage_list"
+    ),
 ]
