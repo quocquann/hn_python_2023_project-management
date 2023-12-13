@@ -11,10 +11,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from app.utils.helpers import send_mail_verification
-from .serializers import SignUpSerializers, VerifySerializers, CreateProjectSerializer
+from .serializers import SignUpSerializers, VerifySerializers, ProjectSerializer
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from app.models import Project, UserProject
+from .permissions import IsPM
+from app.utils import constants
 
 
 class SignUp(APIView):
@@ -71,13 +75,31 @@ class Verify(APIView):
 
 
 @extend_schema(
-    request=CreateProjectSerializer,
-    responses=CreateProjectSerializer,
+    request=ProjectSerializer,
+    responses=ProjectSerializer,
 )
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_project(request):
-    serializer = CreateProjectSerializer(data=request.data)
+    serializer = ProjectSerializer(data=request.data)
+    if serializer.is_valid():
+        project = serializer.save()
+        UserProject.objects.create(
+            user=request.user, project=project, role=constants.PROJECT_MANAGER
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema(
+    request=ProjectSerializer,
+    responses=ProjectSerializer,
+)
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated, IsPM])
+def update_project(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    serializer = ProjectSerializer(project, data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
