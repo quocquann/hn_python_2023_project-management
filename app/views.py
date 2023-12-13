@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from django.contrib import messages
 from django.contrib.auth.decorators import (
     user_passes_test,
@@ -18,8 +16,8 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template import loader
 from django.urls import reverse, reverse_lazy
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -33,7 +31,7 @@ from .forms import (
     AddUserToProjectForm,
     StageCreateForm,
 )
-from .models import Task, Stage, Project, UserProject, CustomUser, UserStage
+from .models import Task, Stage, Project, UserProject, UserStage
 from .utils import constants
 from .utils.helpers import (
     check_token,
@@ -42,6 +40,7 @@ from .utils.helpers import (
     is_in_group,
     is_stage_member_or_pm,
     is_pm_or_stage_owner,
+    send_mail_verification,
 )
 
 
@@ -55,28 +54,7 @@ def signUp(request):
             with transaction.atomic():
                 new_user = form.save()
 
-                verify_token = uuid4()
-                CustomUser.objects.create(user=new_user, verify_token=verify_token)
-                mail_subject = "Activate your account."
-                verify_url = reverse(
-                    "verify",
-                    kwargs={
-                        "uidb64": urlsafe_base64_encode(force_bytes(new_user.pk)),
-                        "token": str(verify_token),
-                    },
-                )
-                mail_message = (
-                    f"Hi {new_user.username}, Please use this link to verify your account\n"
-                    f"{request.build_absolute_uri(verify_url)}"
-                )
-                from_email = EMAIL_HOST_USER
-                send_mail(
-                    mail_subject,
-                    mail_message,
-                    from_email,
-                    [new_user.email],
-                    fail_silently=False,
-                )
+                send_mail_verification(request, new_user)
 
             return HttpResponse(
                 _("Please confirm your email address to complete the registration")
