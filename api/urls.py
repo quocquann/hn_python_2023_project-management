@@ -28,4 +28,5 @@ urlpatterns = [
         views.StageDetail.as_view(),
         name="stage_detail",
     ),
+    path("projects/list", views.ProjectList.as_view(), name="project_list"),
 ]

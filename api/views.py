@@ -5,9 +5,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework import filters
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -175,3 +177,19 @@ class StageDetail(APIView):
 
         stage.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ProjectList(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]
+
+    @extend_schema(
+        parameters=[OpenApiParameter(name="search", required=False, type=str)]
+    )
+    def get(self, request):
+        return super().get(self, request)
+
+    def get_queryset(self):
+        return Project.objects.filter(user=self.request.user)

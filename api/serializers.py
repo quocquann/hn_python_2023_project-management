@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from app.models import Stage, UserProject, UserStage, Project
+from app.models import Stage, UserProject, UserStage, Project, Task
 from app.utils import constants
 from app.utils.helpers import check_token
 
@@ -90,9 +90,27 @@ class VerifySerializers(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    task_count = serializers.SerializerMethodField("get_task_count")
+    stage_count = serializers.SerializerMethodField("get_stage_count")
+
     class Meta:
         model = Project
-        fields = ["name", "describe", "end_date"]
+        fields = [
+            "name",
+            "describe",
+            "end_date",
+            "start_date",
+            "status",
+            "task_count",
+            "stage_count",
+        ]
+
+    def get_stage_count(self, instance):
+        return Stage.objects.filter(project=instance.pk).count()
+
+    def get_task_count(self, instance):
+        stages = Stage.objects.filter(project=instance.pk)
+        return Task.objects.filter(stage__in=stages).count()
 
     def validate_end_date(self, value):
         if value < datetime.date.today():
