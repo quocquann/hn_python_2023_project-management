@@ -185,3 +185,9 @@ class StageSerializers(serializers.ModelSerializer):
                 )
 
         return instance
+
+
+class StageListSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Stage
+        fields = ["name", "start_date", "end_date", "status"]

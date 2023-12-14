@@ -10,6 +10,7 @@ from rest_framework import filters
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import ListAPIView
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,12 +18,13 @@ from rest_framework.views import APIView
 from app.models import Project, UserProject, Stage, Task
 from app.utils import constants
 from app.utils.helpers import send_mail_verification
-from .permissions import IsPM
+from .permissions import IsPM, IsPMOrProjectMember
 from .serializers import (
     SignUpSerializers,
     VerifySerializers,
     ProjectSerializer,
     StageSerializers,
+    StageListSerializers,
 )
 
 
@@ -111,15 +113,33 @@ def update_project(request, project_id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class StageList(APIView):
-    permission_classes = [IsAuthenticated, IsPM]
+class StageList(APIView, LimitOffsetPagination):
+    permission_classes = [IsAuthenticated, IsPMOrProjectMember]
+
+    def get_serializer_class(self):
+        return StageSerializers
 
     @extend_schema(
-        request=StageSerializers,
+        parameters=[
+            OpenApiParameter(
+                name="name",
+                description="Search stage by name",
+                required=False,
+                type=str,
+            ),
+        ],
         responses={
-            201: StageSerializers,
+            200: StageListSerializers,
         },
     )
+    def get(self, request, project_id):
+        name = self.request.query_params.get("name", "")
+        stages = Stage.objects.filter(project_id=project_id, name__icontains=name)
+        result_page = self.paginate_queryset(stages, request, view=self)
+        data = StageListSerializers(result_page, many=True).data
+
+        return self.get_paginated_response(data)
+
     def post(self, request, project_id):
         serializer = StageSerializers(
             data=request.data, context={"project_id": project_id}
