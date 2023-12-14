@@ -12,7 +12,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app.models import Project, UserProject, Stage
+from app.models import Project, UserProject, Stage, Task
 from app.utils import constants
 from app.utils.helpers import send_mail_verification
 from .permissions import IsPM
@@ -159,3 +159,19 @@ class StageDetail(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, project_id, stage_id):
+        stage = get_object_or_404(Stage, pk=stage_id)
+        tasks = Task.objects.filter(
+            stage=stage, status__in=[constants.TASK_NEW, constants.TASK_IN_PROGRESS]
+        )
+        if tasks:
+            return Response(
+                {
+                    "detail": "Can not delete stage - Stage already has task in progress or new"
+                },
+                status.HTTP_400_BAD_REQUEST,
+            )
+
+        stage.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
