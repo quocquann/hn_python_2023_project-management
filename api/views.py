@@ -15,7 +15,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app.models import Project, UserProject, Stage, Task
+from app.models import Project, UserProject, Stage, Task, UserStage
 from app.utils import constants
 from app.utils.helpers import send_mail_verification
 from .permissions import IsPM, IsPMOrProjectMember
@@ -164,7 +164,20 @@ def delete_project(request, project_id):
 
 
 class StageDetail(APIView):
-    permission_classes([IsAuthenticated, IsPM])
+    permission_classes = [IsAuthenticated, IsPMOrProjectMember]
+
+    @extend_schema(
+        request=StageListSerializers,
+        responses={
+            200: StageListSerializers,
+        },
+    )
+    def get(self, request, project_id, stage_id):
+        stage = get_object_or_404(Stage, pk=stage_id, project_id=project_id)
+        user_stage = UserStage.objects.filter(stage=stage).select_related("user")
+        stage.members = user_stage
+        serializer = StageListSerializers(stage)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
         request=StageSerializers,

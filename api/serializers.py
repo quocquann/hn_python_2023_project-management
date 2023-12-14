@@ -187,7 +187,39 @@ class StageSerializers(serializers.ModelSerializer):
         return instance
 
 
+class TaskSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ["content", "start_date", "end_date", "status"]
+
+
+class UserStageSerializers(serializers.ModelSerializer):
+    pk = serializers.IntegerField(source="user.pk")
+    username = serializers.CharField(source="user.username")
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
+
+    class Meta:
+        model = UserStage
+        fields = ["pk", "username", "first_name", "last_name", "role"]
+
+
 class StageListSerializers(serializers.ModelSerializer):
+    task_set = TaskSerializers(many=True, read_only=True)
+    members = UserStageSerializers(many=True, read_only=True)
+    task_count = serializers.SerializerMethodField("get_task_count")
+
     class Meta:
         model = Stage
-        fields = ["name", "start_date", "end_date", "status"]
+        fields = [
+            "name",
+            "start_date",
+            "end_date",
+            "status",
+            "task_count",
+            "task_set",
+            "members",
+        ]
+
+    def get_task_count(self, instance):
+        return Task.objects.filter(stage=instance).count()
