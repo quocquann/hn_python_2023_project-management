@@ -34,4 +34,9 @@ urlpatterns = [
         views.ProjectDetail.as_view(),
         name="project_detail",
     ),
+    path(
+        "projects/<int:project_id>/members",
+        views.MemberListOfProject.as_view(),
+        name="member_list_of_project",
+    ),
 ]
