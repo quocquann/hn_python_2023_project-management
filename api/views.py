@@ -226,3 +226,17 @@ class ProjectList(ListAPIView):
 
     def get_queryset(self):
         return Project.objects.filter(user=self.request.user)
+
+
+class ProjectDetail(APIView):
+    permission_classes = [IsAuthenticated, IsPMOrProjectMember]
+
+    @extend_schema(responses=ProjectSerializer)
+    def get(self, request, project_id):
+        project = get_object_or_404(Project, pk=project_id)
+        stages = Stage.objects.filter(project=project)
+        users = UserProject.objects.filter(project=project)
+        project.stages = stages
+        project.members = users
+        serializer = ProjectSerializer(project, many=False)
+        return Response(serializer.data, status.HTTP_200_OK)

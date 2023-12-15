@@ -89,35 +89,6 @@ class VerifySerializers(serializers.ModelSerializer):
         return instance
 
 
-class ProjectSerializer(serializers.ModelSerializer):
-    task_count = serializers.SerializerMethodField("get_task_count")
-    stage_count = serializers.SerializerMethodField("get_stage_count")
-
-    class Meta:
-        model = Project
-        fields = [
-            "name",
-            "describe",
-            "end_date",
-            "start_date",
-            "status",
-            "task_count",
-            "stage_count",
-        ]
-
-    def get_stage_count(self, instance):
-        return Stage.objects.filter(project=instance.pk).count()
-
-    def get_task_count(self, instance):
-        stages = Stage.objects.filter(project=instance.pk)
-        return Task.objects.filter(stage__in=stages).count()
-
-    def validate_end_date(self, value):
-        if value < datetime.date.today():
-            raise serializers.ValidationError(_("Invalid date - end date in past"))
-        return value
-
-
 class StageSerializers(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all())
 
@@ -223,3 +194,67 @@ class StageListSerializers(serializers.ModelSerializer):
 
     def get_task_count(self, instance):
         return Task.objects.filter(stage=instance).count()
+
+
+class MemberProjectSerializer(serializers.ModelSerializer):
+    pk = serializers.SerializerMethodField("get_pk")
+    first_name = serializers.SerializerMethodField("get_first_name")
+    last_name = serializers.SerializerMethodField("get_last_name")
+    email = serializers.SerializerMethodField("get_email")
+
+    class Meta:
+        model = UserProject
+        fields = ["pk", "first_name", "last_name", "email", "role"]
+
+    def get_pk(self, instance):
+        return User.objects.get(pk=instance.user.pk).pk
+
+    def get_first_name(self, instance):
+        return User.objects.get(pk=instance.user.pk).first_name
+
+    def get_last_name(self, instance):
+        return User.objects.get(pk=instance.user.pk).last_name
+
+    def get_email(self, instance):
+        return User.objects.get(pk=instance.user.pk).email
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    task_count = serializers.SerializerMethodField("get_task_count")
+    stage_count = serializers.SerializerMethodField("get_stage_count")
+    stages = StageListSerializers(many=True, read_only=True)
+    members = MemberProjectSerializer(many=True, read_only=True)
+    pm = serializers.SerializerMethodField("get_pm")
+
+    class Meta:
+        model = Project
+        fields = [
+            "name",
+            "describe",
+            "end_date",
+            "start_date",
+            "status",
+            "pm",
+            "task_count",
+            "stage_count",
+            "stages",
+            "members",
+        ]
+
+    def get_pm(self, instance):
+        user_project = UserProject.objects.get(
+            project=instance, role=constants.PROJECT_MANAGER
+        )
+        return User.objects.get(pk=user_project.user.pk).username
+
+    def get_stage_count(self, instance):
+        return Stage.objects.filter(project=instance.pk).count()
+
+    def get_task_count(self, instance):
+        stages = Stage.objects.filter(project=instance.pk)
+        return Task.objects.filter(stage__in=stages).count()
+
+    def validate_end_date(self, value):
+        if value < datetime.date.today():
+            raise serializers.ValidationError(_("Invalid date - end date in past"))
+        return value
