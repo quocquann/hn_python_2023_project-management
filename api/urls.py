@@ -44,4 +44,9 @@ urlpatterns = [
         views.MemberStageList.as_view(),
         name="member_list_of_stage",
     ),
+    path(
+        "projects/<int:project_id>/stages/<int:stage_id>/members/<int:user_id>",
+        views.MemberStageDetail.as_view(),
+        name="member_detail_of_stage",
+    ),
 ]

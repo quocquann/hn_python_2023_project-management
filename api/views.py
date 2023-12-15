@@ -263,8 +263,8 @@ class MemberListOfProject(APIView):
             serializer = MemberProjectSerializer(user_project_created, many=True)
             return Response(serializer.data, status.HTTP_201_CREATED)
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
-    
-    
+
+
 class MemberStageList(APIView):
     permission_classes = [IsAuthenticated, IsPMOrStageOwner]
 
@@ -292,3 +292,42 @@ class MemberStageList(APIView):
             return Response(data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MemberStageDetail(APIView):
+    perrmision_class = [IsAuthenticated, IsPMOrStageOwner]
+
+    def delete(self, request, project_id, stage_id, user_id):
+        stage_member = UserStage.objects.filter(stage_id=stage_id, user_id=user_id)
+
+        if not stage_member.exists():
+            return Response(
+                {"message": "User is not member of stage"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        stage_owner = UserStage.objects.filter(
+            stage_id=stage_id, role=constants.STAGE_OWNER
+        )
+
+        if (
+            stage_owner[0].user_id == request.user.id
+            and stage_owner[0].user_id == user_id
+        ):
+            return Response(
+                {"message": "You are stage owner, can not delete yourself"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if Task.objects.filter(
+            stage=stage_id,
+            user=user_id,
+            status__in=[constants.TASK_NEW, constants.TASK_IN_PROGRESS],
+        ).exists():
+            return Response(
+                {"message": "User is working on task"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        stage_member.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
