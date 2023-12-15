@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
-from app.models import Stage, UserProject, UserStage, Project, Task
+from app.models import Stage, UserProject, UserStage, Project, Task, Report
 from app.utils import constants
 from app.utils.helpers import check_token
 
@@ -342,4 +342,10 @@ class AddMemberStageSerializers(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('content', 'start_date', 'end_date', 'status', 'user')
+        fields = ("content", "start_date", "end_date", "status", "user")
+
+
+class ReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Report
+        fields = ["content"]

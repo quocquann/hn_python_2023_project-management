@@ -9,20 +9,16 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import filters
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app.models import Project, UserProject, Stage, Task, UserStage
+from app.models import Project, UserProject, Stage, Task, UserStage, Report
 from app.utils import constants
-from app.utils.helpers import (
-    send_mail_verification,
-    is_in_project,
-    is_pm,
-)
+from app.utils.helpers import send_mail_verification, is_in_project, is_pm
 from .permissions import IsPM, IsPMOrProjectMember, IsPMOrStageOwner
 from .serializers import (
     SignUpSerializers,
@@ -35,6 +31,7 @@ from .serializers import (
     AddMemberStageSerializers,
     UserStageSerializers,
     TaskSerializer,
+    ReportSerializer,
 )
 
 
@@ -395,3 +392,22 @@ class MemberDetailOfProject(APIView):
         UserStage.objects.filter(user=user, stage__in=stages).delete()
         UserProject.objects.filter(user=user, project=project).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ReportListView(CreateAPIView):
+    serializer_class = ReportSerializer
+    permission_classes = [IsAuthenticated, IsPMOrProjectMember]
+
+    @extend_schema(request=ReportSerializer, responses=ReportSerializer)
+    def post(self, request, project_id):
+        project = get_object_or_404(Project, pk=project_id)
+        serializer = ReportSerializer(data=request.data)
+        if serializer.is_valid():
+            report = Report.objects.create(
+                content=serializer.validated_data["content"],
+                user=request.user,
+                project=project,
+            )
+            serializer = ReportSerializer(report)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
