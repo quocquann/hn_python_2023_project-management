@@ -18,7 +18,7 @@ from rest_framework.views import APIView
 from app.models import Project, UserProject, Stage, Task, UserStage
 from app.utils import constants
 from app.utils.helpers import send_mail_verification
-from .permissions import IsPM, IsPMOrProjectMember
+from .permissions import IsPM, IsPMOrProjectMember, IsPMOrStageOwner
 from .serializers import (
     SignUpSerializers,
     VerifySerializers,
@@ -27,6 +27,8 @@ from .serializers import (
     StageListSerializers,
     ListUserSerializer,
     MemberProjectSerializer,
+    AddMemberStageSerializers,
+    UserStageSerializers,
 )
 
 
@@ -261,3 +263,32 @@ class MemberListOfProject(APIView):
             serializer = MemberProjectSerializer(user_project_created, many=True)
             return Response(serializer.data, status.HTTP_201_CREATED)
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+    
+    
+class MemberStageList(APIView):
+    permission_classes = [IsAuthenticated, IsPMOrStageOwner]
+
+    @extend_schema(
+        request=AddMemberStageSerializers,
+        responses={
+            201: AddMemberStageSerializers,
+        },
+    )
+    def post(self, request, project_id, stage_id):
+        serializer = AddMemberStageSerializers(
+            data=request.data, context={"project_id": project_id}
+        )
+        if serializer.is_valid():
+            user_id = serializer.validated_data["user"]
+
+            stage = get_object_or_404(Stage, pk=stage_id)
+            stage.user.add(*user_id, through_defaults={"role": constants.MEMBER})
+
+            user_stage = UserStage.objects.filter(
+                stage_id=stage_id, user_id__in=user_id
+            ).select_related("user")
+            data = UserStageSerializers(user_stage, many=True).data
+
+            return Response(data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
