@@ -25,6 +25,8 @@ from .serializers import (
     ProjectSerializer,
     StageSerializers,
     StageListSerializers,
+    ListUserSerializer,
+    MemberProjectSerializer,
 )
 
 
@@ -240,3 +242,22 @@ class ProjectDetail(APIView):
         project.members = users
         serializer = ProjectSerializer(project, many=False)
         return Response(serializer.data, status.HTTP_200_OK)
+
+
+class MemberListOfProject(APIView):
+    permission_classes = [IsAuthenticated, IsPM]
+
+    @extend_schema(request=ListUserSerializer, responses=MemberProjectSerializer)
+    def post(self, request, project_id):
+        project = get_object_or_404(Project, pk=project_id)
+        serializer = ListUserSerializer(data=request.data, context={"project": project})
+        if serializer.is_valid():
+            members = User.objects.filter(pk__in=serializer.data.get("user_ids"))
+            user_projects = [
+                UserProject(user=user, project=project, role=constants.MEMBER)
+                for user in members
+            ]
+            user_project_created = UserProject.objects.bulk_create(user_projects)
+            serializer = MemberProjectSerializer(user_project_created, many=True)
+            return Response(serializer.data, status.HTTP_201_CREATED)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)

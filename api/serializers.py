@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 
 from app.models import Stage, UserProject, UserStage, Project, Task
@@ -257,4 +257,32 @@ class ProjectSerializer(serializers.ModelSerializer):
     def validate_end_date(self, value):
         if value < datetime.date.today():
             raise serializers.ValidationError(_("Invalid date - end date in past"))
+        return value
+
+
+class ListUserSerializer(serializers.Serializer):
+    user_ids = serializers.ListField(child=serializers.IntegerField())
+
+    def validate_user_ids(self, value):
+        user_not_found = []
+        user_existed = []
+        for user_id in value:
+            try:
+                user = User.objects.get(pk=user_id)
+                if UserProject.objects.filter(
+                    user=user, project=self.context.get("project")
+                ):
+                    user_existed.append(user_id)
+            except ObjectDoesNotExist:
+                user_not_found.append(user_id)
+
+        if user_not_found or user_existed:
+            detail = {
+                "user_ids_not_found": user_not_found,
+                "user_ids_existed": user_existed,
+                "message": "Users not found or already in project",
+            }
+            raise serializers.ValidationError(
+                detail=detail, code=status.HTTP_404_NOT_FOUND
+            )
         return value
