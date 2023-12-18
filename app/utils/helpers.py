@@ -6,6 +6,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from projectmanagement.settings import EMAIL_HOST_USER
+
 from . import constants
 from ..models import UserProject, UserStage, CustomUser
 
@@ -67,3 +68,6 @@ def send_mail_verification(request, new_user):
         [new_user.email],
         fail_silently=False,
     )
+
+
+

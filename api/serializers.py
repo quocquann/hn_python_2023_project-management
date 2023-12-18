@@ -1,3 +1,5 @@
+from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers
 import datetime
 
 from django.contrib.auth.models import User
@@ -6,10 +8,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
-
 from app.models import Stage, UserProject, UserStage, Project, Task
 from app.utils import constants
 from app.utils.helpers import check_token
+
 
 
 class SignUpSerializers(serializers.ModelSerializer):
@@ -336,3 +338,8 @@ class AddMemberStageSerializers(serializers.ModelSerializer):
             raise serializers.ValidationError(res)
 
         return data
+
+class TaskSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Task
+    fields = ('content', 'start_date', 'end_date','status','user')
