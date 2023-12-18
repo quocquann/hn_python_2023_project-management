@@ -95,6 +95,11 @@ DATABASES = {
         "PASSWORD": config("DB_PASSWORD"),
         "HOST": config("DB_HOST"),
         "PORT": config("DB_PORT"),
+        "TEST": {
+            "NAME": "test_projectmanagement",
+            "CHARSET": "utf8mb4",
+            "COLLATION": "utf8mb4_0900_ai_ci",
+        },
     }
 }
 
