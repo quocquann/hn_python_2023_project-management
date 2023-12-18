@@ -286,3 +286,53 @@ class ListUserSerializer(serializers.Serializer):
                 detail=detail, code=status.HTTP_404_NOT_FOUND
             )
         return value
+
+
+class AddMemberStageSerializers(serializers.ModelSerializer):
+    user = serializers.ListField(child=serializers.IntegerField(label=_("User ID")))
+
+    class Meta:
+        model = UserStage
+        fields = ["user"]
+
+    def validate(self, data):
+        project_id = self.context.get("project_id")
+        user_not_exist = []
+        user_not_in_project = []
+        user_existed = []
+
+        for user_id in data["user"]:
+            if User.objects.filter(pk=user_id).exists():
+                user_existed.append(user_id)
+            else:
+                user_not_exist.append(user_id)
+
+            try:
+                UserProject.objects.get(user_id=user_id, project_id=project_id)
+            except ObjectDoesNotExist:
+                if user_id not in user_not_exist:
+                    user_not_in_project.append(user_id)
+
+        res = {}
+        if user_not_exist:
+            res["user_not_exist"] = {
+                "message": _("User does not exist"),
+                "id": user_not_exist,
+            }
+
+        if user_not_in_project:
+            res["user_not_in_project"] = {
+                "message": _(" User not in project"),
+                "id": user_not_in_project,
+            }
+
+        if user_existed:
+            res["user_existed"] = {
+                "message": _("User already in stage"),
+                "id": user_existed,
+            }
+
+        if user_not_exist or user_not_in_project or user_existed:
+            raise serializers.ValidationError(res)
+
+        return data
