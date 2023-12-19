@@ -13,7 +13,6 @@ from app.utils import constants
 from app.utils.helpers import check_token
 
 
-
 class SignUpSerializers(serializers.ModelSerializer):
     username = serializers.CharField(
         max_length=30,
@@ -339,7 +338,8 @@ class AddMemberStageSerializers(serializers.ModelSerializer):
 
         return data
 
+
 class TaskSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = Task
-    fields = ('content', 'start_date', 'end_date','status','user')
+    class Meta:
+        model = Task
+        fields = ('content', 'start_date', 'end_date', 'status', 'user')

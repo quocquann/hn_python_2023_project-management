@@ -17,8 +17,11 @@ urlpatterns = [
     path("verify/<str:uidb64>/<str:token>", views.Verify.as_view(), name="verify"),
     path("projects", views.create_project, name="create_project"),
     path("projects/<int:project_id>", views.update_project, name="update_project"),
-    path("projects/<int:project_id>/stages/<int:stage_id>/tasks", views.TaskList.as_view(), name="stage_tasks"),
-
+    path(
+        "projects/<int:project_id>/stages/<int:stage_id>/tasks",
+        views.TaskList.as_view(),
+        name="stage_tasks",
+    ),
     path(
         "projects/<int:project_id>/delete", views.delete_project, name="delete_project"
     ),
@@ -50,5 +53,9 @@ urlpatterns = [
         "projects/<int:project_id>/stages/<int:stage_id>/members/<int:user_id>",
         views.MemberStageDetail.as_view(),
         name="member_detail_of_stage",
+    ),
+    path(
+        "projects/<int:project_id>/members/<int:user_id>",
+        views.MemberDetailOfProject.as_view(),
     ),
 ]
