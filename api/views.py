@@ -18,7 +18,11 @@ from rest_framework.views import APIView
 
 from app.models import Project, UserProject, Stage, Task, UserStage
 from app.utils import constants
-from app.utils.helpers import send_mail_verification,is_in_project
+from app.utils.helpers import (
+    send_mail_verification,
+    is_in_project,
+    is_pm,
+)
 from .permissions import IsPM, IsPMOrProjectMember, IsPMOrStageOwner
 from .serializers import (
     SignUpSerializers,
@@ -30,7 +34,7 @@ from .serializers import (
     MemberProjectSerializer,
     AddMemberStageSerializers,
     UserStageSerializers,
-    TaskSerializer
+    TaskSerializer,
 )
 
 
@@ -118,15 +122,16 @@ def update_project(request, project_id):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class TaskList(APIView):
     pagination_class = PageNumberPagination
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
-    def get_object_tasks_by_stage(self, stage_id):  
-           tasks = Task.objects.filter(stage_id=stage_id)
-           return tasks
-        
-    def get(self, request, project_id, stage_id):       
+    def get_object_tasks_by_stage(self, stage_id):
+        tasks = Task.objects.filter(stage_id=stage_id)
+        return tasks
+
+    def get(self, request, project_id, stage_id):
         project = Project.objects.get(id=project_id)
         tasks = self.get_object_tasks_by_stage(stage_id=stage_id)
         paginator = self.pagination_class()
@@ -352,4 +357,41 @@ class MemberStageDetail(APIView):
             )
         stage_member.delete()
 
+
+class MemberDetailOfProject(APIView):
+    permission_classes = [IsAuthenticated, IsPM]
+
+    def delete(self, request, project_id, user_id):
+        project = get_object_or_404(Project, pk=project_id)
+        user = get_object_or_404(User, pk=user_id)
+        if not UserProject.objects.filter(user=user, project=project):
+            data = {"message": "User is not in project"}
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+        if Task.objects.filter(
+            user=user, status__in=[constants.TASK_NEW, constants.TASK_IN_PROGRESS]
+        ):
+            data = {
+                "message": "Cannot delete user - User have already assigned to some task"
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+        if is_pm(user=user, project=project):
+            data = {"message": "Cannot delete PM"}
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+        stages = Stage.objects.filter(project=project)
+        user_stages = UserStage.objects.filter(
+            user=user, stage__in=stages, role=constants.STAGE_OWNER
+        ).values("stage")
+
+        if user_stages:
+            data = {
+                "message": "Cannot delete user - User have already been stage owner of some stage",
+                "stages": user_stages,
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+        UserStage.objects.filter(user=user, stage__in=stages).delete()
+        UserProject.objects.filter(user=user, project=project).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
