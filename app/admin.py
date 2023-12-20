@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import Project, Stage, Task, UserProject, UserStage
 
 # Register your models here.
