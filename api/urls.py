@@ -58,4 +58,9 @@ urlpatterns = [
         "projects/<int:project_id>/members/<int:user_id>",
         views.MemberDetailOfProject.as_view(),
     ),
+    path(
+        "projects/<int:project_id>/reports",
+        views.ReportListView.as_view(),
+        name="list_report",
+    ),
 ]

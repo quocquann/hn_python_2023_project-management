@@ -1,6 +1,5 @@
 from django.contrib import admin
-
-from .models import Project, Stage, Task, UserProject, UserStage
+from .models import Project, Stage, Task, UserProject, UserStage, Report
 
 # Register your models here.
 
@@ -8,6 +7,7 @@ admin.site.register(Stage)
 admin.site.register(Task)
 admin.site.register(UserProject)
 admin.site.register(UserStage)
+admin.site.register(Report)
 
 
 @admin.register(Project)
